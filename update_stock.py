@@ -1,145 +1,102 @@
-import os
-import json
+import os, json
 from datetime import datetime
 import pandas as pd
 import yfinance as yf
 from google import genai
 
 TICKERS = [
-    {"symbol": "VWCE.DE", "name": "Vanguard FTSE All-World ETF", "currency": "EUR"},
-    {"symbol": "AAPL", "name": "Apple Inc.", "currency": "USD"},
-    {"symbol": "NVDA", "name": "NVIDIA Corp.", "currency": "USD"},
-    {"symbol": "MSFT", "name": "Microsoft Corp.", "currency": "USD"},
-    {"symbol": "SAP.DE", "name": "SAP SE", "currency": "EUR"}
+    {"symbol": "VWCE.DE", "name": "Vanguard FTSE All-World", "currency": "EUR", "cat": "ETF"},
+    {"symbol": "EUNL.DE", "name": "iShares Core MSCI World", "currency": "EUR", "cat": "ETF"},
+    {"symbol": "AAPL", "name": "Apple Inc.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "NVDA", "name": "NVIDIA Corp.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "MSFT", "name": "Microsoft Corp.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "TSLA", "name": "Tesla Inc.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "AMZN", "name": "Amazon.com Inc.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "SAP.DE", "name": "SAP SE", "currency": "EUR", "cat": "Aktien"},
+    {"symbol": "BTC-USD", "name": "Bitcoin", "currency": "USD", "cat": "Krypto"},
+    {"symbol": "ETH-USD", "name": "Ethereum", "currency": "USD", "cat": "Krypto"},
+    {"symbol": "SOL-USD", "name": "Solana", "currency": "USD", "cat": "Krypto"},
+    {"symbol": "XRP-USD", "name": "XRP (Ripple)", "currency": "USD", "cat": "Krypto"},
+    {"symbol": "GC=F", "name": "Gold (Feinunze)", "currency": "USD", "cat": "Edelmetalle"},
+    {"symbol": "SI=F", "name": "Silber (Feinunze)", "currency": "USD", "cat": "Edelmetalle"}
 ]
 
+def calc_rsi(s, p=14):
+    d = s.diff()
+    g = d.where(d > 0, 0.0).ewm(alpha=1/p, min_periods=p, adjust=False).mean()
+    l = (-d.where(d < 0, 0.0)).ewm(alpha=1/p, min_periods=p, adjust=False).mean()
+    return 100 - (100 / (1 + (g / l)))
 
-def calculate_rsi(series, period=14):
-    delta = series.diff()
-    gain = delta.where(delta > 0, 0.0)
-    loss = -delta.where(delta < 0, 0.0)
-    avg_gain = gain.ewm(alpha=1 / period, min_periods=period, adjust=False).mean()
-    avg_loss = loss.ewm(alpha=1 / period, min_periods=period, adjust=False).mean()
-    rs = avg_gain / avg_loss
-    return 100 - (100 / (1 + rs))
-
-
-def generate_ai_analysis(client, stock_data):
+def get_ai_text(client, d):
+    fb = f"{d['name']} ({d['ticker']}) notiert aktuell bei {d['price']} {d['currency']} (RSI: {d['indicators']['rsi']}, übergeordneter Trend: {d['trend']})."
     if not client:
-        return (
-            f"{stock_data['name']} notiert aktuell bei {stock_data['price']} {stock_data['currency']} "
-            f"({stock_data['change_pct']}%). Der RSI (14) liegt bei {stock_data['indicators']['rsi']}, "
-            f"während der übergeordnete Trend als {stock_data['trend']} eingestuft wird."
-        )
-
-    prompt = (
-        f"Du bist ein erfahrener, sachlicher Finanzanalyst. Analysiere die aktuellen Daten für "
-        f"{stock_data['name']} ({stock_data['ticker']}): "
-        f"Kurs: {stock_data['price']} {stock_data['currency']} ({stock_data['change_pct']}% heute), "
-        f"RSI (14): {stock_data['indicators']['rsi']}, "
-        f"SMA 50: {stock_data['indicators']['sma_50']} {stock_data['currency']}, "
-        f"SMA 200: {stock_data['indicators']['sma_200']} {stock_data['currency']}, "
-        f"Trend-Status: {stock_data['trend']}. "
-        f"Schreibe ein präzises, professionelles Tagesfazit auf Deutsch (maximal 3 Sätze). "
-        f"Ordne den RSI und den Abstand zu den gleitenden Durchschnitten kurz ein. "
-        f"Verwende reinen Fließtext ohne Markdown-Überschriften oder Aufzählungszeichen."
-    )
+        return fb
+    prompt = f"Kurze deutsche Marktanalyse (max 3 Sätze, reiner Text) für {d['name']} ({d['cat']}): Kurs {d['price']} {d['currency']}, RSI {d['indicators']['rsi']}, SMA50 {d['indicators']['sma_50']}, Trend {d['trend']}."
     try:
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=prompt,
-        )
-        if response and response.text:
-            return response.text.strip()
-    except Exception as e:
-        print(f"KI-Fehler bei {stock_data['ticker']}: {e}")
+        r = client.models.generate_content(model="gemini-2.5-flash", contents=prompt)
+        return r.text.strip() if (r and r.text) else fb
+    except Exception:
+        return fb
 
-    return (
-        f"{stock_data['name']} schloss bei {stock_data['price']} {stock_data['currency']}. "
-        f"Mit einem RSI von {stock_data['indicators']['rsi']} und einem {stock_data['trend']}-Trend "
-        f"bewegt sich der Wert im Rahmen seiner gleitenden Durchschnitte (SMA 50: {stock_data['indicators']['sma_50']})."
-    )
-
-
-def run_update():
-    api_key = (os.environ.get("GEMINI_API_KEY") or "").strip()
-    client = None
-    if api_key:
-        try:
-            client = genai.Client(api_key=api_key)
-        except Exception as e:
-            print(f"Konnte Gemini Client nicht initialisieren: {e}")
-
-    results = {
-        "last_updated": datetime.now().strftime("%d.%m.%Y %H:%M"),
-        "stocks": []
+def pack(series, step=1, fmt="%d.%m.%y"):
+    s = series.iloc[::step]
+    if len(series) > 0 and s.index[-1] != series.index[-1]:
+        s = pd.concat([s, series.iloc[[-1]]])
+    return {
+        "labels": [x.strftime(fmt) for x in s.index],
+        "prices": [round(float(x), 2) for x in s]
     }
 
-    for item in TICKERS:
-        symbol = item["symbol"]
-        print(f"Lade Daten für {symbol}...")
+def build_charts(c):
+    end = c.index[-1]
+    def sub(days):
+        cut = c[c.index >= (end - pd.Timedelta(days=days))]
+        return cut if len(cut) >= 2 else c.tail(5)
+    max_step = max(1, len(c) // 180)
+    return {
+        "7d": pack(sub(7), 1, "%d.%m."),
+        "1m": pack(sub(30), 1, "%d.%m."),
+        "3m": pack(sub(90), 1, "%d.%m."),
+        "6m": pack(sub(180), 2, "%d.%m.%y"),
+        "1y": pack(sub(365), 3, "%d.%m.%y"),
+        "2y": pack(sub(730), 5, "%m/%Y"),
+        "max": pack(c, max_step, "%m/%Y")
+    }
+
+def main():
+    key = (os.environ.get("GEMINI_API_KEY") or "").strip()
+    client = genai.Client(api_key=key) if key else None
+    res = {"last_updated": datetime.now().strftime("%d.%m.%Y %H:%M"), "stocks": []}
+
+    for t in TICKERS:
         try:
-            stock = yf.Ticker(symbol)
-            df = stock.history(period="1y", auto_adjust=True)
-            if df.empty or len(df) < 30:
-                print(f"Zu wenig Daten für {symbol}, überspringe...")
+            df = yf.Ticker(t["symbol"]).history(period="max", auto_adjust=True)
+            if df.empty or len(df) < 15:
                 continue
-
-            close_series = df["Close"].dropna()
-            current_price = float(close_series.iloc[-1])
-            prev_close = float(close_series.iloc[-2]) if len(close_series) > 1 else current_price
-            change_pct = ((current_price - prev_close) / prev_close) * 100 if prev_close else 0.0
-
-            sma_50_series = close_series.rolling(window=50).mean()
-            sma_200_series = close_series.rolling(window=200).mean()
-            rsi_series = calculate_rsi(close_series, 14)
-
-            rsi_val = float(rsi_series.iloc[-1]) if not pd.isna(rsi_series.iloc[-1]) else 50.0
-            sma50_val = float(sma_50_series.iloc[-1]) if not pd.isna(sma_50_series.iloc[-1]) else current_price
-            sma200_val = float(sma_200_series.iloc[-1]) if not pd.isna(sma_200_series.iloc[-1]) else current_price
-
-            if current_price > sma50_val and sma50_val >= sma200_val:
-                trend = "Bullish"
-            elif current_price < sma50_val and sma50_val < sma200_val:
-                trend = "Bearish"
-            else:
-                trend = "Neutral"
-
-            recent_close = close_series.tail(30)
-            history_dates = [d.strftime("%d.%m.") for d in recent_close.index]
-            history_prices = [round(float(p), 2) for p in recent_close]
-
-            stock_data = {
-                "ticker": symbol,
-                "name": item["name"],
-                "currency": item["currency"],
-                "price": round(current_price, 2),
-                "change_pct": round(change_pct, 2),
-                "pe_ratio": "–",
-                "trend": trend,
-                "indicators": {
-                    "rsi": round(rsi_val, 1),
-                    "sma_50": round(sma50_val, 2),
-                    "sma_200": round(sma200_val, 2)
-                },
-                "chart": {
-                    "labels": history_dates,
-                    "prices": history_prices
-                }
+            c = df["Close"].dropna()
+            price = float(c.iloc[-1])
+            prev = float(c.iloc[-2]) if len(c) > 1 else price
+            chg = ((price - prev) / prev) * 100 if prev else 0.0
+            s50 = float(c.rolling(50).mean().iloc[-1]) if len(c) >= 50 else price
+            s200 = float(c.rolling(200).mean().iloc[-1]) if len(c) >= 200 else price
+            rsi_s = calc_rsi(c)
+            rsi = float(rsi_s.iloc[-1]) if not pd.isna(rsi_s.iloc[-1]) else 50.0
+            trend = "Bullish" if (price > s50 and s50 >= s200) else ("Bearish" if (price < s50 and s50 < s200) else "Neutral")
+            item = {
+                "ticker": t["symbol"], "name": t["name"], "currency": t["currency"], "cat": t["cat"],
+                "price": round(price, 2), "change_pct": round(chg, 2), "trend": trend,
+                "indicators": {"rsi": round(rsi, 1), "sma_50": round(s50, 2), "sma_200": round(s200, 2)},
+                "charts": build_charts(c)
             }
-
-            stock_data["ai_commentary"] = generate_ai_analysis(client, stock_data)
-            results["stocks"].append(stock_data)
-
+            item["ai_commentary"] = get_ai_text(client, item)
+            res["stocks"].append(item)
         except Exception as e:
-            print(f"Fehler bei {symbol}: {e}")
+            print("Skip", t["symbol"], e)
 
     os.makedirs("data", exist_ok=True)
-    output_path = os.path.join("data", "latest_analysis.json")
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(results, f, ensure_ascii=False, indent=2)
-    print("Alle Analysen erfolgreich in data/latest_analysis.json gespeichert!")
-
+    with open("data/latest_analysis.json", "w", encoding="utf-8") as f:
+        json.dump(res, f, ensure_ascii=False, indent=2)
+    print("DONE")
 
 if __name__ == "__main__":
-    run_update()
+    main()

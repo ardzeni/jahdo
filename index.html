@@ -71,6 +71,53 @@
     @media(max-width:760px){.wrap{width:min(100% - 24px,620px)}.hero{margin-top:14px;padding:23px 18px;border-radius:13px}.hero::after{right:-190px;top:-145px}.section{padding:14px 0}.section-heading h2{font-size:1.25rem}.radar-head{gap:8px}.partner{padding:18px;border-radius:13px}.chart-panel{min-height:250px}.chart-box{height:190px}}
     @media(max-width:410px){.navlinks{gap:8px}.navlinks a{font-size:.68rem}.brand-name{font-size:.87rem}}
   </style>
+  <style id="dashboard-upgrades">
+    .asset-toolbar{display:grid;grid-template-columns:minmax(190px,260px) 1fr auto;gap:10px;align-items:end;margin:9px 0 8px}
+    .asset-search{display:grid;gap:5px;color:#aeb5c0;font-size:.7rem;font-weight:700}
+    .asset-search input{min-width:0;height:37px;padding:0 11px;border:1px solid #303844;border-radius:8px;background:#10151c;color:#f0f0ed;font-size:.78rem}
+    .asset-search input::placeholder{color:#77818e}
+    .category-filters{display:flex;flex-wrap:wrap;gap:5px}
+    .category-chip{padding:7px 9px;font-size:.69rem}
+    .asset-count{padding-bottom:8px;color:#8993a0;font-size:.69rem;white-space:nowrap}
+    .asset-list{display:flex;flex-wrap:wrap;gap:6px;max-height:94px;overflow:auto;padding:1px 2px 5px;scrollbar-color:#50545d #151a21;scrollbar-width:thin}
+    .asset-list .chip{flex:0 0 auto;padding:7px 9px;font-size:.7rem}
+    .chart-analysis{margin-top:11px;padding:13px 14px;border:1px solid #29313d;border-radius:11px;background:#141922}
+    .chart-analysis-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:9px}
+    .chart-analysis-head h4{margin:0;color:#e8e9e7;font-size:.86rem}
+    .chart-analysis-head p{margin:4px 0 0;color:#a6aeb8;font-size:.73rem;max-width:780px}
+    .analysis-period{color:#d7b56d;font-size:.68rem;white-space:nowrap}
+    .analysis-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+    .analysis-metrics>div{padding:9px 10px;border-radius:8px;background:#10151c;border:1px solid #242c36;min-width:0}
+    .analysis-metrics span{display:block;color:#929ca8;font-size:.64rem}
+    .analysis-metrics strong{display:block;margin-top:4px;color:#e5e5e1;font-size:.76rem;overflow-wrap:anywhere}
+    .analysis-note{margin:8px 0 0;color:#818b97;font-size:.64rem}
+    .results{grid-template-columns:repeat(4,minmax(0,1fr))}
+    @media(max-width:760px){.asset-toolbar{grid-template-columns:1fr;align-items:stretch}.asset-count{padding:0}.asset-list{max-height:112px}.chart-analysis{padding:11px}.analysis-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.sim-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.results{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:420px){.sim-grid{grid-template-columns:1fr}.analysis-metrics{gap:5px}.analysis-metrics>div{padding:8px}.chart-analysis-head{flex-direction:column;gap:4px}}
+  </style>
+  <style id="top-five-layout">
+    .hero{padding:22px clamp(18px,3vw,32px);margin-top:18px}
+    .hero h1{font-size:clamp(1.65rem,3.1vw,2.75rem);line-height:1.08;margin:7px 0 9px;letter-spacing:-.045em}
+    .hero p{font-size:.87rem;max-width:720px}
+    .hero-note{font-size:.78rem}
+    .top-five-section{padding:8px 0 10px}
+    .top-five-head{display:flex;justify-content:space-between;align-items:end;gap:16px;margin-bottom:9px}
+    .top-five-head h2{margin:2px 0;font-size:1.08rem;letter-spacing:-.025em;color:#f0eee8}
+    .top-five-head p{margin:0;color:#9aa4b1;font-size:.68rem}
+    .top-five-stamp{color:#8e98a5;font-size:.65rem;white-space:nowrap}
+    .top-five-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px}
+    .top-stock{min-width:0;text-align:left;padding:10px 11px;border:1px solid #29313d;border-radius:10px;background:#121720;color:#edf0f3;cursor:pointer;transition:border-color .15s ease,background .15s ease}
+    .top-stock:hover{background:#171e28;border-color:#76613a}
+    .top-stock-top{display:flex;justify-content:space-between;align-items:center;gap:6px}
+    .top-stock-rank{color:#d7b56d;font-size:.63rem;font-weight:800}
+    .top-stock-change{font-size:.68rem;font-weight:800;white-space:nowrap}
+    .top-stock-ticker{display:block;margin-top:5px;font-size:.82rem;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .top-stock-name{display:block;margin-top:2px;color:#9aa4b1;font-size:.64rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .top-stock-price{display:block;margin-top:7px;color:#e0c47f;font-size:.7rem;font-weight:700}
+    .top-five-empty{margin:0;padding:11px 13px;border:1px dashed #39414d;border-radius:9px;color:#9aa4b1;font-size:.75rem}
+    @media(max-width:760px){.hero{padding:20px 18px}.hero h1{font-size:clamp(1.55rem,6vw,2.2rem)}.top-five-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.top-five-head{align-items:flex-start;flex-direction:column;gap:4px}}
+    @media(max-width:420px){.top-five-grid{grid-template-columns:1fr 1fr;gap:5px}.top-stock{padding:9px}.hero h1{font-size:1.55rem}}
+  </style>
 </head>
 <body>
   <header class="topbar">
@@ -85,12 +132,24 @@
       <aside class="hero-note"><strong>Kein Echtzeitversprechen</strong>Die Analysen werden aus dem bereitgestellten Datensatz geladen. Datenstand und Verfügbarkeit hängen von dessen Aktualisierung ab.</aside>
     </section>
 
+    <section id="top-stocks" class="top-five-section" aria-labelledby="top-five-title">
+      <div class="top-five-head"><div><div class="eyebrow">Aktienradar</div><h2 id="top-five-title">Top 5 Aktien</h2><p>Nach Tagesperformance sortiert · höchste zuerst · keine Anlageempfehlung</p></div><span id="top-five-stamp" class="top-five-stamp">Datenstand: —</span></div>
+      <div id="top-five-list" class="top-five-grid" aria-live="polite"></div>
+      <p id="top-five-empty" class="top-five-empty" hidden>Aktuell sind keine Aktien mit Tagesänderung im Datensatz.</p>
+    </section>
+
     <section id="analysen" class="section" aria-labelledby="analysis-title">
       <div class="section-heading"><div><div class="eyebrow">Marktübersicht</div><h2 id="analysis-title">Asset-Radar</h2></div><p>Basiswert und Zeitraum auswählen</p></div>
       <div class="panel radar">
-        <div class="radar-head"><div><h3>Ausgewählte Analysen</h3><p>Indikatoren sind beschreibend und keine Kauf- oder Verkaufssignale.</p></div><div class="status" role="status" aria-live="polite">Datenstand: <strong id="last-updated">Lade…</strong></div></div>
+        <div class="radar-head"><div><h3>Basiswerte</h3><p>Historische Kennzahlen, keine Kauf- oder Verkaufssignale.</p></div><div class="status" role="status" aria-live="polite">Datenstand: <strong id="last-updated">Lade…</strong></div></div>
         <p id="data-alert" class="notice" role="status" aria-live="polite" hidden></p>
+        <div class="asset-toolbar">
+          <label class="asset-search" for="asset-search"><span>Suchen</span><input id="asset-search" type="search" placeholder="Ticker oder Name, z. B. AAPL" autocomplete="off"></label>
+          <div id="category-filters" class="category-filters" role="group" aria-label="Asset-Kategorie filtern"></div>
+          <span id="asset-count" class="asset-count" aria-live="polite"></span>
+        </div>
         <div id="ticker-buttons" class="asset-list" role="group" aria-label="Basiswert auswählen"></div>
+        <p id="asset-filter-empty" class="notice" role="status" hidden>Keine Basiswerte passen zu Suche oder Filter.</p>
         <div id="asset-empty" class="asset-empty" hidden><strong>Keine Analysedaten verfügbar</strong><p>Prüfe, ob <code>data/latest_analysis.json</code> veröffentlicht wurde, und lade die Daten erneut.</p><button id="retry-data" class="chip" type="button" style="margin-top:12px">Erneut laden</button></div>
         <div id="asset-content" hidden>
           <div class="asset-summary"><div class="asset-title"><span id="stock-ticker" class="ticker-badge">—</span><div><h3 id="stock-name">—</h3><p id="stock-meta">Kursdaten aus dem Analyse-Datensatz</p></div></div><div class="price-block"><div class="price-label">Letzter verfügbarer Kurs</div><div id="stock-price" class="price">—</div><div id="stock-change" class="change">—</div></div></div>
@@ -99,6 +158,16 @@
             <div class="panel chart-panel"><div class="chart-top"><h4>Kursverlauf</h4><span id="range-perf" class="performance" aria-live="polite">—</span></div><div class="chart-box"><canvas id="priceChart" role="img" aria-label="Historischer Kursverlauf"></canvas><div id="chart-empty" class="chart-empty" hidden>Für diesen Zeitraum liegen keine ausreichenden Chartdaten vor.</div></div></div>
             <div><div class="indicators" aria-label="Technische Kennzahlen"><div class="indicator"><span>RSI · 14 Perioden</span><strong id="ind-rsi">—</strong><small id="rsi-note">Beschreibender Indikator</small></div><div class="indicator"><span>Trendstatus</span><strong id="ind-trend">—</strong><small id="badge-trend">—</small></div><div class="indicator"><span>SMA · 50 Tage</span><strong id="ind-sma50">—</strong><small>Mittelfristiger Durchschnitt</small></div><div class="indicator"><span>SMA · 200 Tage</span><strong id="ind-sma200">—</strong><small>Langfristiger Durchschnitt</small></div></div><div class="comment"><div class="comment-title">Automatisierte Markteinordnung</div><p id="ai-commentary">Für diesen Basiswert liegt derzeit kein Kommentar vor.</p></div></div>
           </div>
+          <section class="chart-analysis" aria-labelledby="chart-analysis-title">
+            <div class="chart-analysis-head"><div><h4 id="chart-analysis-title">Chartanalyse</h4><p id="chart-interpretation">Wähle einen Zeitraum, um Verlauf und Kennzahlen einzuordnen.</p></div><span id="analysis-period" class="analysis-period">—</span></div>
+            <div class="analysis-metrics">
+              <div><span>Performance</span><strong id="analysis-return">—</strong></div>
+              <div><span>Hoch / Tief</span><strong id="analysis-range">—</strong></div>
+              <div><span>Rückgang vom Hoch</span><strong id="analysis-drawdown">—</strong></div>
+              <div><span>Technik</span><strong id="analysis-technical">—</strong></div>
+            </div>
+            <p class="analysis-note">Automatische, historische Beschreibung der gelieferten Datenpunkte. Keine Prognose oder Anlageempfehlung.</p>
+          </section>
         </div>
         <p class="fineprint">Daten können verzögert, unvollständig oder fehlerhaft sein. Prüfe Zeitstempel und Quelle, bevor du daraus Schlüsse ziehst.</p>
       </div>
@@ -111,10 +180,12 @@
           <div class="control"><div class="control-head"><label for="start-kapital">Startkapital</label><output id="val-start" for="start-kapital">1.000 €</output></div><input type="range" id="start-kapital" min="0" max="50000" step="250" value="1000"><div class="bounds"><span>0 €</span><span>50.000 €</span></div></div>
           <div class="control"><div class="control-head"><label for="spar-rate">Monatliche Sparrate</label><output id="val-rate" for="spar-rate">100 €</output></div><input type="range" id="spar-rate" min="0" max="2000" step="25" value="100"><div class="bounds"><span>0 €</span><span>2.000 €</span></div></div>
           <div class="control"><div class="control-head"><label for="jahre">Anlagehorizont</label><output id="val-jahre" for="jahre">15 Jahre</output></div><input type="range" id="jahre" min="1" max="40" step="1" value="15"><div class="bounds"><span>1 Jahr</span><span>40 Jahre</span></div></div>
-          <div class="control"><div class="control-head"><label for="rendite">Angenommene Rendite pro Jahr</label><output id="val-rendite" for="rendite">7,0 %</output></div><input type="range" id="rendite" min="-20" max="20" step="0.5" value="7"><div class="bounds"><span>−20 %</span><span>+20 %</span></div></div>
+          <div class="control"><div class="control-head"><label for="rendite">Angenommene Rendite pro Jahr</label><output id="val-rendite" for="rendite">+7,0 %</output></div><input type="range" id="rendite" min="-20" max="20" step="0.5" value="7"><div class="bounds"><span>−20 %</span><span>+20 %</span></div></div>
+          <div class="control"><div class="control-head"><label for="gebuehr">Jährliche Gebührenannahme</label><output id="val-gebuehr" for="gebuehr">0,2 %</output></div><input type="range" id="gebuehr" min="0" max="2" step="0.1" value="0.2"><div class="bounds"><span>0 %</span><span>2 %</span></div></div>
+          <div class="control"><div class="control-head"><label for="inflation">Angenommene Inflation</label><output id="val-inflation" for="inflation">2,0 %</output></div><input type="range" id="inflation" min="0" max="8" step="0.5" value="2"><div class="bounds"><span>0 %</span><span>8 %</span></div></div>
         </div>
-        <div class="results" aria-live="polite"><div class="result"><span>Eigene Einzahlungen</span><strong id="res-einzahlung">—</strong></div><div class="result"><span>Wertzuwachs / Verlust</span><strong id="res-differenz">—</strong></div><div class="result emphasis"><span>Projizierter Endwert</span><strong id="res-endwert">—</strong></div></div>
-        <p class="sim-note">Annahme: konstante effektive Jahresrendite, monatliche Verzinsung und Einzahlung jeweils am Monatsende. Steuern, Gebühren und Inflation sind nicht berücksichtigt. Tatsächliche Renditen schwanken; ein Verlust ist möglich.</p>
+        <div class="results" aria-live="polite"><div class="result"><span>Eigene Einzahlungen</span><strong id="res-einzahlung">—</strong></div><div class="result"><span>Wertänderung nach Gebühren</span><strong id="res-differenz">—</strong></div><div class="result"><span>Nominaler Endwert</span><strong id="res-endwert">—</strong></div><div class="result emphasis"><span>Kaufkraft heute</span><strong id="res-realwert">—</strong></div></div>
+        <p class="sim-note">Annahme: konstante effektive Jahresrendite, monatliche Einzahlung am Monatsende. Die Gebühren werden als pauschaler jährlicher Renditeabschlag modelliert; die Inflation wertet den Endbetrag auf heutige Kaufkraft ab. Steuern sind nicht berücksichtigt. Rechenbeispiel, keine Prognose.</p>
       </div>
     </section>
 
@@ -138,7 +209,8 @@
       { key: '1y', label: '1J' }, { key: '2y', label: '2J' },
       { key: 'max', label: 'MAX' }
     ];
-    const state = { assets: [], selectedIndex: -1, range: 'max', chart: null };
+    const CATEGORIES = ['Alle', 'ETF', 'Aktien', 'Krypto', 'Edelmetalle'];
+    const state = { assets: [], selectedIndex: -1, range: 'max', category: 'Alle', query: '', chart: null };
     const $ = (id) => document.getElementById(id);
     const asFiniteNumber = (value) => {
       if (value === null || value === undefined || value === '') return null;
@@ -189,6 +261,7 @@
       return {
         ticker, name,
         currency: typeof raw.currency === 'string' ? raw.currency.trim().toUpperCase() : '',
+        category: CATEGORIES.includes(raw.cat) && raw.cat !== 'Alle' ? raw.cat : (ticker.includes('-USD') ? 'Krypto' : (['VWCE.DE', 'IWDA.AS', 'VOO', 'QQQ'].includes(ticker) ? 'ETF' : (['GC=F', 'SI=F'].includes(ticker) ? 'Edelmetalle' : 'Aktien'))),
         price: asFiniteNumber(raw.price),
         changePct: asFiniteNumber(raw.change_pct),
         trend: ['Bullish', 'Bearish', 'Neutral'].includes(raw.trend) ? raw.trend : null,
@@ -205,7 +278,10 @@
     function showDataError(message) {
       $('data-alert').textContent = message;
       $('data-alert').hidden = false;
+      $('asset-filter-empty').hidden = true;
+      setText('asset-count', '0 / 0 Werte');
       $('asset-empty').hidden = false;
+      renderTopFive();
       $('asset-content').hidden = true;
       $('ticker-buttons').replaceChildren();
       setText('last-updated', 'nicht verfügbar');
@@ -230,9 +306,9 @@
         state.assets = assets;
         const stamp = data.last_updated || data.generated_at || 'Zeitstempel fehlt';
         setText('last-updated', `${stamp} · ${assets.length} Werte`);
+        renderTopFive(stamp);
+        renderCategoryFilters();
         renderAssetButtons();
-        $('asset-content').hidden = false;
-        selectAsset(0);
       } catch (error) {
         console.error('Jahdo-Daten konnten nicht geladen werden:', error);
         state.assets = [];
@@ -240,18 +316,112 @@
       }
     }
 
+    function renderCategoryFilters() {
+      const container = $('category-filters');
+      container.replaceChildren();
+      CATEGORIES.forEach((category) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'chip category-chip';
+        button.textContent = category;
+        button.setAttribute('aria-pressed', String(state.category === category));
+        button.addEventListener('click', () => {
+          state.category = category;
+          renderCategoryFilters();
+          renderAssetButtons();
+        });
+        container.appendChild(button);
+      });
+    }
+
+    function renderTopFive(stamp = '—') {
+      const list = $('top-five-list');
+      list.replaceChildren();
+      const movers = state.assets
+        .map((asset, index) => ({ asset, index }))
+        .filter(({ asset }) => asset.category === 'Aktien' && asset.changePct !== null)
+        .sort((a, b) => b.asset.changePct - a.asset.changePct || a.asset.ticker.localeCompare(b.asset.ticker))
+        .slice(0, 5);
+      $('top-five-empty').hidden = movers.length > 0;
+      setText('top-five-stamp', `Datenstand: ${stamp}`);
+
+      movers.forEach(({ asset, index }, rank) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'top-stock';
+        const changeClass = asset.changePct >= 0 ? 'positive' : 'negative';
+        button.setAttribute('aria-label', `${rank + 1}. ${asset.name}, ${asset.changePct >= 0 ? 'plus ' : 'minus '}${Math.abs(asset.changePct).toFixed(2)} Prozent. Zur Analyse öffnen.`);
+        const top = document.createElement('span');
+        top.className = 'top-stock-top';
+        const rankNode = document.createElement('span');
+        rankNode.className = 'top-stock-rank';
+        rankNode.textContent = `#${rank + 1}`;
+        const change = document.createElement('span');
+        change.className = `top-stock-change ${changeClass}`;
+        change.textContent = `${asset.changePct >= 0 ? '+' : ''}${asset.changePct.toFixed(2)} %`;
+        top.append(rankNode, change);
+        const ticker = document.createElement('span');
+        ticker.className = 'top-stock-ticker';
+        ticker.textContent = asset.ticker;
+        const name = document.createElement('span');
+        name.className = 'top-stock-name';
+        name.textContent = asset.name;
+        const price = document.createElement('span');
+        price.className = 'top-stock-price';
+        price.textContent = formatPrice(asset.price, asset.currency);
+        button.append(top, ticker, name, price);
+        button.addEventListener('click', () => {
+          state.category = 'Aktien';
+          state.query = '';
+          $('asset-search').value = '';
+          renderCategoryFilters();
+          renderAssetButtons();
+          selectAsset(index);
+          $('analysen').scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+        });
+        list.appendChild(button);
+      });
+    }
+
+    function getVisibleAssets() {
+      const query = state.query.trim().toLocaleLowerCase('de-DE');
+      return state.assets.map((asset, index) => ({ asset, index })).filter(({ asset }) => {
+        const categoryMatches = state.category === 'Alle' || asset.category === state.category;
+        const queryMatches = !query || `${asset.ticker} ${asset.name}`.toLocaleLowerCase('de-DE').includes(query);
+        return categoryMatches && queryMatches;
+      });
+    }
+
     function renderAssetButtons() {
       const container = $('ticker-buttons');
+      const contentWasHidden = $('asset-content').hidden;
+      const visible = getVisibleAssets();
       container.replaceChildren();
-      state.assets.forEach((asset, index) => {
+      setText('asset-count', `${visible.length} / ${state.assets.length} Werte`);
+
+      visible.forEach(({ asset, index }) => {
         const button = document.createElement('button');
         button.type = 'button';
         button.className = 'chip';
+        button.dataset.index = String(index);
         button.textContent = asset.ticker;
-        button.setAttribute('aria-pressed', 'false');
+        button.setAttribute('aria-pressed', String(index === state.selectedIndex));
+        button.setAttribute('aria-label', `${asset.name} (${asset.ticker}), ${asset.category}`);
         button.addEventListener('click', () => selectAsset(index));
         container.appendChild(button);
       });
+
+      const hasMatches = visible.length > 0;
+      $('asset-filter-empty').hidden = hasMatches;
+      $('asset-content').hidden = !hasMatches;
+      if (!hasMatches) {
+        clearChart('Keine passenden Basiswerte gefunden.');
+        return;
+      }
+      const selectionIsVisible = visible.some(({ index }) => index === state.selectedIndex);
+      if (!selectionIsVisible || contentWasHidden) {
+        selectAsset(selectionIsVisible ? state.selectedIndex : visible[0].index);
+      }
     }
 
     function renderRangeButtons() {
@@ -278,12 +448,12 @@
       const asset = state.assets[index];
       if (!asset) return;
       state.selectedIndex = index;
-      [...$('ticker-buttons').children].forEach((button, i) => {
-        button.setAttribute('aria-pressed', String(i === index));
+      [...$('ticker-buttons').children].forEach((button) => {
+        button.setAttribute('aria-pressed', String(Number(button.dataset.index) === index));
       });
       setText('stock-ticker', asset.ticker);
       setText('stock-name', asset.name);
-      setText('stock-meta', `${asset.currency || 'Währung nicht angegeben'} · Daten aus dem Analyse-Datensatz`);
+      setText('stock-meta', `${asset.category} · ${asset.currency || 'Währung nicht angegeben'} · Datensatz`);
       setText('stock-price', formatPrice(asset.price, asset.currency));
       const change = asset.changePct;
       const changeElement = $('stock-change');
@@ -321,6 +491,61 @@
       $('chart-empty').textContent = message;
       $('chart-empty').hidden = false;
       setText('range-perf', '—');
+      setText('analysis-period', '—');
+      setText('analysis-return', '—');
+      setText('analysis-range', '—');
+      setText('analysis-drawdown', '—');
+      setText('analysis-technical', '—');
+      setText('chart-interpretation', message);
+    }
+
+    function updateChartAnalysis(asset, range) {
+      const values = range.prices.map(asFiniteNumber).filter((value) => value !== null);
+      if (values.length < 2) {
+        $('chart-interpretation').textContent = 'Für eine Einordnung sind mindestens zwei gültige Datenpunkte nötig.';
+        return;
+      }
+
+      const first = values[0];
+      const last = values[values.length - 1];
+      const returnPct = first > 0 ? ((last - first) / first) * 100 : null;
+      const high = Math.max(...values);
+      const low = Math.min(...values);
+      let peak = values[0];
+      let maxDrawdown = 0;
+      for (const value of values) {
+        peak = Math.max(peak, value);
+        if (peak > 0) maxDrawdown = Math.min(maxDrawdown, ((value - peak) / peak) * 100);
+      }
+
+      const rangeLabel = RANGES.find((item) => item.key === state.range)?.label || state.range;
+      setText('analysis-period', `Zeitraum ${rangeLabel}`);
+      const returnLabel = returnPct === null ? '—' : `${returnPct >= 0 ? '+' : ''}${returnPct.toFixed(2)} %`;
+      setText('analysis-return', returnLabel);
+      $('analysis-return').className = returnPct === null ? '' : (returnPct >= 0 ? 'positive' : 'negative');
+      setText('analysis-range', `${formatPrice(high, asset.currency)} / ${formatPrice(low, asset.currency)}`);
+      setText('analysis-drawdown', `${maxDrawdown.toFixed(2)} %`);
+
+      const rsi = asset.indicators.rsi;
+      const technical = [asset.trend || 'Trend n. v.'];
+      if (rsi !== null) technical.push(`RSI ${rsi.toLocaleString('de-DE', { maximumFractionDigits: 1 })}`);
+      setText('analysis-technical', technical.join(' · '));
+
+      const observations = [];
+      if (returnPct !== null) {
+        if (Math.abs(returnPct) < 0.05) observations.push('Der Kurs war im gewählten Zeitraum nahezu unverändert');
+        else observations.push(`Der Kurs ${returnPct > 0 ? 'stieg' : 'fiel'} um ${Math.abs(returnPct).toFixed(2)} %`);
+      }
+      const sma50 = asset.indicators.sma50;
+      if (sma50 !== null) observations.push(last >= sma50 ? 'der letzte Datenpunkt liegt über der SMA 50' : 'der letzte Datenpunkt liegt unter der SMA 50');
+      if (rsi !== null) {
+        if (rsi >= 70) observations.push('der RSI liegt über 70');
+        else if (rsi <= 30) observations.push('der RSI liegt unter 30');
+        else observations.push('der RSI liegt zwischen 30 und 70');
+      }
+      $('chart-interpretation').textContent = observations.length
+        ? `${observations.join('; ')}. Das beschreibt historische Daten und ist keine Prognose.`
+        : 'Für diesen Basiswert fehlen Kennzahlen für eine nähere Einordnung.';
     }
 
     function updateChart() {
@@ -328,6 +553,7 @@
       if (!asset) return clearChart('Keine Daten ausgewählt.');
       const range = asset.charts[state.range];
       if (!range || range.prices.length < 2) return clearChart('Für diesen Zeitraum liegen keine ausreichenden Chartdaten vor.');
+      updateChartAnalysis(asset, range);
       const maxPoints = 400;
       const stride = Math.max(1, Math.ceil(range.prices.length / maxPoints));
       const labels = [], prices = [];
@@ -385,25 +611,36 @@
       const start = Number($('start-kapital').value);
       const payment = Number($('spar-rate').value);
       const years = Number($('jahre').value);
-      const annualReturn = Number($('rendite').value) / 100;
+      const grossAnnualReturn = Number($('rendite').value) / 100;
+      const annualFee = Number($('gebuehr').value) / 100;
+      const annualInflation = Number($('inflation').value) / 100;
+
       $('val-start').textContent = formatEuro(start);
       $('val-rate').textContent = formatEuro(payment);
       $('val-jahre').textContent = `${years} ${years === 1 ? 'Jahr' : 'Jahre'}`;
-      $('val-rendite').textContent = `${annualReturn >= 0 ? '+' : ''}${(annualReturn * 100).toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} %`;
+      $('val-rendite').textContent = `${grossAnnualReturn >= 0 ? '+' : ''}${(grossAnnualReturn * 100).toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} %`;
+      $('val-gebuehr').textContent = `${(annualFee * 100).toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} %`;
+      $('val-inflation').textContent = `${(annualInflation * 100).toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} %`;
+
+      // Approximate fee drag as an annual reduction in the portfolio growth factor.
+      const netAnnualReturn = (1 + grossAnnualReturn) * (1 - annualFee) - 1;
+      const monthlyRate = Math.pow(1 + netAnnualReturn, 1 / 12) - 1;
       const months = years * 12;
-      const monthlyRate = Math.pow(1 + annualReturn, 1 / 12) - 1;
       const growth = Math.pow(1 + monthlyRate, months);
-      const paymentValue = Math.abs(monthlyRate) < 1e-10
+      const futurePayments = Math.abs(monthlyRate) < 1e-10
         ? payment * months
         : payment * ((growth - 1) / monthlyRate);
-      const endValue = start * growth + paymentValue;
+      const endValue = start * growth + futurePayments;
       const contributions = start + payment * months;
       const difference = endValue - contributions;
+      const realValue = endValue / Math.pow(1 + annualInflation, years);
+
       $('res-einzahlung').textContent = formatEuro(contributions);
-      const diffElement = $('res-differenz');
-      diffElement.textContent = `${difference > 0 ? '+' : ''}${formatEuro(difference)}`;
-      diffElement.className = difference > 0.5 ? 'positive' : difference < -0.5 ? 'negative' : '';
+      const differenceElement = $('res-differenz');
+      differenceElement.textContent = `${difference > 0 ? '+' : ''}${formatEuro(difference)}`;
+      differenceElement.className = difference > 0.5 ? 'positive' : difference < -0.5 ? 'negative' : '';
       $('res-endwert').textContent = formatEuro(endValue);
+      $('res-realwert').textContent = formatEuro(realValue);
     }
 
     function configureAffiliate() {
@@ -432,7 +669,11 @@
     }
 
     $('retry-data').addEventListener('click', loadStockData);
-    ['start-kapital', 'spar-rate', 'jahre', 'rendite'].forEach((id) => {
+    $('asset-search').addEventListener('input', (event) => {
+      state.query = event.target.value;
+      renderAssetButtons();
+    });
+    ['start-kapital', 'spar-rate', 'jahre', 'rendite', 'gebuehr', 'inflation'].forEach((id) => {
       $(id).addEventListener('input', updateSimulator);
     });
     $('year').textContent = new Date().getFullYear();

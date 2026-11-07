@@ -39,23 +39,109 @@ TICKERS: list[dict[str, str]] = [
     {"symbol": "IWDA.AS", "name": "iShares Core MSCI World UCITS ETF", "currency": "EUR", "cat": "ETF"},
     {"symbol": "VOO", "name": "Vanguard S&P 500 ETF", "currency": "USD", "cat": "ETF"},
     {"symbol": "QQQ", "name": "Invesco QQQ Trust", "currency": "USD", "cat": "ETF"},
-    # Aktien
+    # 100 ausgewählte US- und internationale Aktien; keine Rangliste oder Empfehlung.
+    # US-Unternehmen (80)
     {"symbol": "AAPL", "name": "Apple Inc.", "currency": "USD", "cat": "Aktien"},
-    {"symbol": "NVDA", "name": "NVIDIA Corp.", "currency": "USD", "cat": "Aktien"},
     {"symbol": "MSFT", "name": "Microsoft Corp.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "NVDA", "name": "NVIDIA Corp.", "currency": "USD", "cat": "Aktien"},
     {"symbol": "AMZN", "name": "Amazon.com Inc.", "currency": "USD", "cat": "Aktien"},
     {"symbol": "GOOGL", "name": "Alphabet Inc. Class A", "currency": "USD", "cat": "Aktien"},
     {"symbol": "META", "name": "Meta Platforms Inc.", "currency": "USD", "cat": "Aktien"},
-    {"symbol": "TSLA", "name": "Tesla Inc.", "currency": "USD", "cat": "Aktien"},
-    {"symbol": "AVGO", "name": "Broadcom Inc.", "currency": "USD", "cat": "Aktien"},
     {"symbol": "BRK-B", "name": "Berkshire Hathaway Inc. Class B", "currency": "USD", "cat": "Aktien"},
-    {"symbol": "JPM", "name": "JPMorgan Chase & Co.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "AVGO", "name": "Broadcom Inc.", "currency": "USD", "cat": "Aktien"},
     {"symbol": "LLY", "name": "Eli Lilly and Company", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "JPM", "name": "JPMorgan Chase & Co.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "V", "name": "Visa Inc.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "MA", "name": "Mastercard Inc.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "WMT", "name": "Walmart Inc.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "XOM", "name": "Exxon Mobil Corp.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "ORCL", "name": "Oracle Corp.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "COST", "name": "Costco Wholesale Corp.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "JNJ", "name": "Johnson & Johnson", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "ABBV", "name": "AbbVie Inc.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "NFLX", "name": "Netflix Inc.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "PG", "name": "Procter & Gamble Co.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "BAC", "name": "Bank of America Corp.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "KO", "name": "The Coca-Cola Company", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "HD", "name": "The Home Depot Inc.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "GE", "name": "GE Aerospace", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "CVX", "name": "Chevron Corp.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "MRK", "name": "Merck & Co. Inc.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "CRM", "name": "Salesforce Inc.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "AMD", "name": "Advanced Micro Devices Inc.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "PEP", "name": "PepsiCo Inc.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "CAT", "name": "Caterpillar Inc.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "CSCO", "name": "Cisco Systems Inc.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "IBM", "name": "International Business Machines Corp.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "MCD", "name": "McDonald's Corp.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "LIN", "name": "Linde plc", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "NOW", "name": "ServiceNow Inc.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "AMGN", "name": "Amgen Inc.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "GS", "name": "The Goldman Sachs Group Inc.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "RTX", "name": "RTX Corp.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "DIS", "name": "The Walt Disney Company", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "QCOM", "name": "QUALCOMM Inc.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "TMO", "name": "Thermo Fisher Scientific Inc.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "TXN", "name": "Texas Instruments Inc.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "ABT", "name": "Abbott Laboratories", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "PM", "name": "Philip Morris International Inc.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "VZ", "name": "Verizon Communications Inc.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "SPGI", "name": "S&P Global Inc.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "ISRG", "name": "Intuitive Surgical Inc.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "C", "name": "Citigroup Inc.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "INTU", "name": "Intuit Inc.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "MU", "name": "Micron Technology Inc.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "AMAT", "name": "Applied Materials Inc.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "PFE", "name": "Pfizer Inc.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "BKNG", "name": "Booking Holdings Inc.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "ADI", "name": "Analog Devices Inc.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "TJX", "name": "The TJX Companies Inc.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "UNH", "name": "UnitedHealth Group Inc.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "NEE", "name": "NextEra Energy Inc.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "BA", "name": "The Boeing Company", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "DE", "name": "Deere & Company", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "UPS", "name": "United Parcel Service Inc.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "LRCX", "name": "Lam Research Corp.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "BLK", "name": "BlackRock Inc.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "SCHW", "name": "The Charles Schwab Corp.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "PANW", "name": "Palo Alto Networks Inc.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "TGT", "name": "Target Corp.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "MDT", "name": "Medtronic plc", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "PLTR", "name": "Palantir Technologies Inc.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "ANET", "name": "Arista Networks Inc.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "SYK", "name": "Stryker Corp.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "COP", "name": "ConocoPhillips", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "SO", "name": "The Southern Company", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "DHR", "name": "Danaher Corp.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "GILD", "name": "Gilead Sciences Inc.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "CME", "name": "CME Group Inc.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "ICE", "name": "Intercontinental Exchange Inc.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "ADP", "name": "Automatic Data Processing Inc.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "MMC", "name": "Marsh & McLennan Companies Inc.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "FI", "name": "Fiserv Inc.", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "ETN", "name": "Eaton Corp. plc", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "APH", "name": "Amphenol Corp.", "currency": "USD", "cat": "Aktien"},
+    # Internationale Unternehmen (20; ADRs in USD, soweit angegeben)
     {"symbol": "SAP.DE", "name": "SAP SE", "currency": "EUR", "cat": "Aktien"},
     {"symbol": "ASML.AS", "name": "ASML Holding N.V.", "currency": "EUR", "cat": "Aktien"},
     {"symbol": "SIE.DE", "name": "Siemens AG", "currency": "EUR", "cat": "Aktien"},
     {"symbol": "ALV.DE", "name": "Allianz SE", "currency": "EUR", "cat": "Aktien"},
+    {"symbol": "MC.PA", "name": "LVMH Moet Hennessy Louis Vuitton SE", "currency": "EUR", "cat": "Aktien"},
+    {"symbol": "NESN.SW", "name": "Nestle S.A.", "currency": "CHF", "cat": "Aktien"},
+    {"symbol": "NOVO-B.CO", "name": "Novo Nordisk A/S Class B", "currency": "DKK", "cat": "Aktien"},
+    {"symbol": "AZN", "name": "AstraZeneca PLC ADR", "currency": "USD", "cat": "Aktien"},
     {"symbol": "TSM", "name": "Taiwan Semiconductor Manufacturing Co. ADR", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "INFY", "name": "Infosys Ltd. ADR", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "TM", "name": "Toyota Motor Corp. ADR", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "SONY", "name": "Sony Group Corp. ADR", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "BABA", "name": "Alibaba Group Holding Ltd. ADR", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "HDB", "name": "HDFC Bank Ltd. ADR", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "NVS", "name": "Novartis AG ADR", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "BHP", "name": "BHP Group Ltd. ADR", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "SHEL", "name": "Shell plc ADR", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "BP", "name": "BP p.l.c. ADR", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "RELX", "name": "RELX PLC ADR", "currency": "USD", "cat": "Aktien"},
+    {"symbol": "UL", "name": "Unilever PLC ADR", "currency": "USD", "cat": "Aktien"},
     # Krypto
     {"symbol": "BTC-USD", "name": "Bitcoin", "currency": "USD", "cat": "Krypto"},
     {"symbol": "ETH-USD", "name": "Ethereum", "currency": "USD", "cat": "Krypto"},
@@ -73,6 +159,7 @@ MAX_CHART_POINTS = 180
 YF_TIMEOUT_SECONDS = 20
 YF_RETRIES = 3
 GEMINI_RETRIES = 2
+MAX_AI_COMMENTARIES_PER_RUN = max(0, int(os.environ.get("MAX_AI_COMMENTARIES_PER_RUN", "10")))
 SYMBOL_PAUSE_SECONDS = 0.8
 RETRY_BASE_SECONDS = 1.0
 
@@ -232,11 +319,11 @@ def _fallback_comment(data: dict[str, Any]) -> str:
 
 
 
-def get_ai_text(client: Any, data: dict[str, Any]) -> str:
+def get_ai_text(client: Any, data: dict[str, Any]) -> tuple[str, bool]:
     """Generate a short, metrics-only commentary; safely fall back on errors."""
     fallback = _fallback_comment(data)
     if client is None:
-        return fallback
+        return fallback, False
 
 
     indicators = data["indicators"]
@@ -268,7 +355,7 @@ def get_ai_text(client: Any, data: dict[str, Any]) -> str:
             )
             text = " ".join((response.text or "").split()) if response else ""
             if text:
-                return text[:700].rstrip()
+                return text[:700].rstrip(), True
             LOGGER.warning("Gemini returned an empty response for %s", data["ticker"])
         except Exception as exc:  # Keep a provider failure from breaking market data.
             LOGGER.warning(
@@ -279,7 +366,7 @@ def get_ai_text(client: Any, data: dict[str, Any]) -> str:
             time.sleep(RETRY_BASE_SECONDS * attempt + random.uniform(0.0, 0.4))
 
 
-    return fallback
+    return fallback, False
 
 
 
@@ -403,7 +490,8 @@ def process_ticker(ticker: dict[str, str], client: Any | None) -> dict[str, Any]
         },
         "charts": build_charts(close),
     }
-    item["ai_commentary"] = get_ai_text(client, item)
+    item["ai_commentary"], ai_used = get_ai_text(client, item)
+    item["commentary_type"] = "ai" if ai_used else "metrics"
     return item
 
 
@@ -463,14 +551,31 @@ def main() -> None:
     generated_at = datetime.now(timezone.utc)
     stocks: list[dict[str, Any]] = []
     failed_symbols: list[str] = []
+    ai_targets_used = 0
+    ai_successes = 0
 
 
     for index, ticker in enumerate(TICKERS):
         symbol = ticker["symbol"]
+        ticker_client = None
+        if (
+            client is not None
+            and ticker.get("cat") == "Aktien"
+            and ai_targets_used < MAX_AI_COMMENTARIES_PER_RUN
+        ):
+            ticker_client = client
+            ai_targets_used += 1
+
+
         try:
-            stocks.append(process_ticker(ticker, client))
+            item = process_ticker(ticker, ticker_client)
+            stocks.append(item)
+            if item.get("commentary_type") == "ai":
+                ai_successes += 1
             LOGGER.info("Processed %s", symbol)
         except Exception as exc:
+            if ticker_client is not None:
+                ai_targets_used -= 1
             failed_symbols.append(symbol)
             LOGGER.exception("Skipping %s after processing failure: %s", symbol, exc)
 
@@ -491,12 +596,14 @@ def main() -> None:
         "last_updated": generated_at.strftime("%d.%m.%Y %H:%M UTC"),
         "stocks": stocks,
         "failed_symbols": failed_symbols,
+        "ai_commentary_limit_per_run": MAX_AI_COMMENTARIES_PER_RUN,
+        "ai_commentaries_generated": ai_successes,
     }
     validate_payload(payload)
     atomic_write_json(OUTPUT_PATH, payload)
     LOGGER.info(
-        "Published %d symbols to %s (%d failed)",
-        len(stocks), OUTPUT_PATH, len(failed_symbols),
+        "Published %d symbols to %s (%d failed; %d AI commentaries)",
+        len(stocks), OUTPUT_PATH, len(failed_symbols), ai_successes,
     )
 
 

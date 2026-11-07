@@ -17,8 +17,12 @@ import random
 import tempfile
 import time
 from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlencode, urlparse
+from urllib.request import Request, urlopen
+import xml.etree.ElementTree as ET
 
 
 import pandas as pd
@@ -156,6 +160,12 @@ FX_TICKER_BY_CURRENCY = {
     "CHF": "EURCHF=X",
     "DKK": "EURDKK=X",
 }
+
+
+GOOGLE_NEWS_RSS_URL = "https://news.google.com/rss/search"
+NEWS_REQUEST_TIMEOUT_SECONDS = 15
+NEWS_QUERY_WINDOW = "when:1d"
+NEWS_LIMIT = 5
 
 
 OUTPUT_PATH = Path(os.environ.get("OUTPUT_PATH", "data/latest_analysis.json"))
@@ -489,6 +499,151 @@ def load_fx_histories(tickers: list[dict[str, str]]) -> dict[str, pd.Series]:
 
 
 
+def _parse_news_date(value: str) -> tuple[str, float] | None:
+    """Normalize common RSS timestamps to UTC ISO text and an epoch for sorting."""
+    text = (value or "").strip()
+    if not text:
+        return None
+    parsed: datetime | None = None
+    try:
+        parsed = parsedate_to_datetime(text)
+    except (TypeError, ValueError, OverflowError):
+        try:
+            parsed = datetime.fromisoformat(text.replace("Z", "+00:00"))
+        except ValueError:
+            return None
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    parsed = parsed.astimezone(timezone.utc)
+    return parsed.isoformat(timespec="minutes").replace("+00:00", "Z"), parsed.timestamp()
+
+
+
+
+def fetch_google_news_query(
+    query: str,
+    related_tickers: list[str] | None = None,
+) -> tuple[list[dict[str, Any]], bool]:
+    """Fetch one localized Google News RSS query; a feed failure is non-fatal."""
+    params = urlencode({
+        "q": f"{query} {NEWS_QUERY_WINDOW}",
+        "hl": "de",
+        "gl": "DE",
+        "ceid": "DE:de",
+    })
+    request = Request(
+        f"{GOOGLE_NEWS_RSS_URL}?{params}",
+        headers={"User-Agent": "JahdoMarkets/1.0 (RSS reader)", "Accept": "application/rss+xml, application/xml, text/xml"},
+    )
+    try:
+        with urlopen(request, timeout=NEWS_REQUEST_TIMEOUT_SECONDS) as response:
+            xml_data = response.read(2_000_000)
+        root = ET.fromstring(xml_data)
+        channel = root.find("channel")
+        entries: list[dict[str, Any]] = []
+        now_epoch = datetime.now(timezone.utc).timestamp()
+        related = sorted(set(related_tickers or []))
+        for item in (channel.findall("item") if channel is not None else []):
+            title = " ".join((item.findtext("title") or "").split())
+            link = " ".join((item.findtext("link") or "").split())
+            if not title:
+                continue
+            parsed_url = urlparse(link)
+            if parsed_url.scheme != "https" or not parsed_url.netloc:
+                continue
+            date_info = _parse_news_date(item.findtext("pubDate") or "")
+            if date_info is None:
+                continue
+            published_at, epoch = date_info
+            if epoch > now_epoch + 3600 or epoch < now_epoch - 86400:
+                continue
+            source_node = item.find("source")
+            source = " ".join(((source_node.text if source_node is not None else "") or "").split())
+            if source:
+                suffix = f" - {source}"
+                if title.endswith(suffix):
+                    title = title[:-len(suffix)].rstrip()
+            entries.append({
+                "title": title[:300],
+                "source": source[:120] or "Google News",
+                "published_at": published_at,
+                "url": link,
+                "related_tickers": related,
+                "relevance_note": (
+                    "Möglicher Bezug zu " + ", ".join(related) + "; kein Beleg für eine Kursursache."
+                    if related else "Möglicher Bezug zum Marktumfeld; kein Beleg für eine Kursursache."
+                ),
+                "_published_epoch": epoch,
+            })
+        return entries, True
+    except Exception as exc:  # Keep RSS outages from interrupting the market-data run.
+        LOGGER.warning("Google News RSS query failed: %s", exc)
+        return [], False
+
+
+
+
+def fetch_top_news(top_stocks: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], str]:
+    """Combine market-context and current top-stock RSS results into five recent items."""
+    queries: list[tuple[str, list[str]]] = [(
+        "Weltwirtschaft OR Weltkonjunktur OR Zentralbank OR Leitzins OR Inflation OR Geopolitik OR Aktienmarkt OR Märkte OR Zinsen OR \"global markets\" OR \"interest rates\" OR geopolitics",
+        [],
+    )]
+    for stock in top_stocks:
+        symbol = str(stock.get("ticker", "")).strip()
+        name = str(stock.get("name", "")).strip()
+        if not symbol or not name:
+            continue
+        queries.append((f'"{name}" OR {symbol}', [symbol]))
+
+
+    all_items: list[dict[str, Any]] = []
+    successful_feeds = 0
+    failed_feeds = 0
+    for query, related in queries:
+        items, ok = fetch_google_news_query(query, related)
+        successful_feeds += int(ok)
+        failed_feeds += int(not ok)
+        all_items.extend(items)
+
+
+    deduplicated: dict[str, dict[str, Any]] = {}
+    for item in all_items:
+        key = str(item.get("url", "")).strip().lower() or str(item.get("title", "")).casefold()
+        if key not in deduplicated:
+            deduplicated[key] = item
+            continue
+        existing = deduplicated[key]
+        merged = sorted(set(existing.get("related_tickers", [])) | set(item.get("related_tickers", [])))
+        existing["related_tickers"] = merged
+        if merged:
+            existing["relevance_note"] = (
+                "Möglicher Bezug zu " + ", ".join(merged)
+                + "; kein Beleg für eine Kursursache."
+            )
+
+
+    selected = sorted(
+        deduplicated.values(),
+        key=lambda item: (-float(item.get("_published_epoch", 0)), item.get("title", "").casefold()),
+    )[:NEWS_LIMIT]
+    for item in selected:
+        item.pop("_published_epoch", None)
+
+
+    if successful_feeds == 0:
+        status = "unavailable"
+    elif failed_feeds:
+        status = "partial"
+    elif selected:
+        status = "ok"
+    else:
+        status = "no_results"
+    return selected, status
+
+
+
+
 def convert_close_to_eur(
     close: pd.Series,
     currency: str,
@@ -606,6 +761,25 @@ def validate_payload(payload: dict[str, Any]) -> None:
         json.dumps(item, ensure_ascii=False, allow_nan=False)
 
 
+    news = payload.get("news", [])
+    if not isinstance(news, list) or len(news) > NEWS_LIMIT:
+        raise ValueError("Invalid news list")
+    if payload.get("news_status", "unavailable") not in {"ok", "partial", "no_results", "unavailable"}:
+        raise ValueError("Invalid news_status")
+    for item in news:
+        if not isinstance(item, dict):
+            raise ValueError("Invalid news record")
+        for required in ("title", "source", "published_at", "url", "related_tickers", "relevance_note"):
+            if required not in item:
+                raise ValueError(f"News field missing: {required}")
+        parsed_url = urlparse(str(item["url"]))
+        if parsed_url.scheme != "https" or not parsed_url.netloc:
+            raise ValueError("News URL must use HTTPS")
+        if not isinstance(item["related_tickers"], list):
+            raise ValueError("related_tickers must be a list")
+        json.dumps(item, ensure_ascii=False, allow_nan=False)
+
+
 
 
 def atomic_write_json(path: Path, payload: dict[str, Any]) -> None:
@@ -687,12 +861,21 @@ def main() -> None:
         raise SystemExit("No symbols were processed successfully; existing JSON was left untouched.")
 
 
+    ranked_news_stocks = sorted(
+        (item for item in stocks if item.get("cat") == "Aktien" and _finite_number(item.get("change_pct")) is not None),
+        key=lambda item: (-float(item["change_pct"]), str(item.get("ticker", ""))),
+    )[:NEWS_LIMIT]
+    news, news_status = fetch_top_news(ranked_news_stocks)
+
+
     timestamp = generated_at.isoformat(timespec="seconds").replace("+00:00", "Z")
     payload: dict[str, Any] = {
         "schema_version": 1,
         "generated_at": timestamp,
         "last_updated": generated_at.strftime("%d.%m.%Y %H:%M UTC"),
         "stocks": stocks,
+        "news": news,
+        "news_status": news_status,
         "failed_symbols": failed_symbols,
         "ai_commentary_limit_per_run": MAX_AI_COMMENTARIES_PER_RUN,
         "ai_commentaries_generated": ai_successes,

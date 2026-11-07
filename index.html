@@ -111,6 +111,7 @@
     .top-stock-top{display:flex;justify-content:space-between;align-items:center;gap:6px}
     .top-stock-rank{color:#d7b56d;font-size:.63rem;font-weight:800}
     .top-stock-change{font-size:.68rem;font-weight:800;white-space:nowrap}
+    .top-stock-status{display:block;margin-top:3px;font-size:.58rem;font-weight:700;letter-spacing:.01em}
     .top-stock-ticker{display:block;margin-top:5px;font-size:.82rem;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .top-stock-name{display:block;margin-top:2px;color:#9aa4b1;font-size:.64rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .top-stock-price{display:block;margin-top:7px;color:#e0c47f;font-size:.7rem;font-weight:700}
@@ -160,7 +161,7 @@
     </section>
 
     <section id="top-stocks" class="top-five-section" aria-labelledby="top-five-title">
-      <div class="top-five-head"><div><div class="eyebrow">Aktienradar</div><h2 id="top-five-title">Alle Aktien</h2><p>Alle Aktien im Datensatz · nach Tagesperformance sortiert · keine Anlageempfehlung</p></div><span id="top-five-stamp" class="top-five-stamp">Datenstand: —</span></div>
+      <div class="top-five-head"><div><div class="eyebrow">Aktienradar</div><h2 id="top-five-title">Top 5 Aktien</h2><p>Nach Tagesperformance sortiert · letzter verfügbarer Schlusskurs gegen vorherigen Schlusskurs · keine Anlageempfehlung</p></div><span id="top-five-stamp" class="top-five-stamp">Datenstand: —</span></div>
       <div id="top-five-list" class="top-five-grid" aria-live="polite"></div>
       <p id="top-five-empty" class="top-five-empty" hidden>Aktuell sind keine Aktien mit Tagesänderung im Datensatz.</p>
     </section>
@@ -193,7 +194,7 @@
               <div><span>Rückgang vom Hoch</span><strong id="analysis-drawdown">—</strong></div>
               <div><span>Technik</span><strong id="analysis-technical">—</strong></div>
             </div>
-            <p class="analysis-note">Automatische, historische Beschreibung der gelieferten Datenpunkte. Keine Prognose oder Anlageempfehlung.</p>
+            <p class="analysis-note">Basiert auf dem gewählten Zeitraum: Start-/Endkurs, Hoch/Tief, größtem Rückgang vom Zwischenhoch sowie RSI(14), SMA 50/200 und Trendstatus. Das Tagesplus/-minus vergleicht den letzten verfügbaren bereinigten Schlusskurs mit dem vorherigen Schlusskurs. Keine Nachrichten- oder Ursachenanalyse, keine Prognose oder Anlageempfehlung.</p>
           </section>
         </div>
         <p class="fineprint">Daten können verzögert, unvollständig oder fehlerhaft sein. Prüfe Zeitstempel und Quelle, bevor du daraus Schlüsse ziehst.</p>
@@ -365,19 +366,21 @@
     function renderTopFive(stamp = '—') {
       const list = $('top-five-list');
       list.replaceChildren();
-      const movers = state.assets
+      const allMovers = state.assets
         .map((asset, index) => ({ asset, index }))
         .filter(({ asset }) => asset.category === 'Aktien' && asset.changePct !== null)
         .sort((a, b) => b.asset.changePct - a.asset.changePct || a.asset.ticker.localeCompare(b.asset.ticker));
-      $('top-five-empty').hidden = movers.length > 0;
-      setText('top-five-stamp', `${movers.length} ${movers.length === 1 ? 'Aktie' : 'Aktien'} · Datenstand: ${stamp}`);
+      const movers = allMovers.slice(0, 5);
+      $('top-five-empty').hidden = allMovers.length > 0;
+      setText('top-five-stamp', `Ranking aus ${allMovers.length} ${allMovers.length === 1 ? 'Aktie' : 'Aktien'} · Datenstand: ${stamp}`);
 
       movers.forEach(({ asset, index }, rank) => {
         const button = document.createElement('button');
         button.type = 'button';
         button.className = 'top-stock';
-        const changeClass = asset.changePct >= 0 ? 'positive' : 'negative';
-        button.setAttribute('aria-label', `${rank + 1}. ${asset.name}, ${asset.changePct >= 0 ? 'plus ' : 'minus '}${Math.abs(asset.changePct).toFixed(2)} Prozent. Zur Analyse öffnen.`);
+        const changeClass = asset.changePct > 0 ? 'positive' : asset.changePct < 0 ? 'negative' : 'neutral';
+        const dayStatus = asset.changePct > 0 ? 'im Plus' : asset.changePct < 0 ? 'im Minus' : 'unverändert';
+        button.setAttribute('aria-label', `${rank + 1}. ${asset.name}, letzter Handelstag ${dayStatus}, Veränderung ${asset.changePct.toFixed(2)} Prozent. Zur Analyse öffnen.`);
         const top = document.createElement('span');
         top.className = 'top-stock-top';
         const rankNode = document.createElement('span');
@@ -385,8 +388,11 @@
         rankNode.textContent = `#${rank + 1}`;
         const change = document.createElement('span');
         change.className = `top-stock-change ${changeClass}`;
-        change.textContent = `${asset.changePct >= 0 ? '+' : ''}${asset.changePct.toFixed(2)} %`;
+        change.textContent = `${asset.changePct > 0 ? '+' : ''}${asset.changePct.toFixed(2)} %`;
         top.append(rankNode, change);
+        const status = document.createElement('span');
+        status.className = `top-stock-status ${changeClass}`;
+        status.textContent = `Letzter Handelstag: ${dayStatus}`;
         const ticker = document.createElement('span');
         ticker.className = 'top-stock-ticker';
         ticker.textContent = asset.ticker;
@@ -396,7 +402,7 @@
         const price = document.createElement('span');
         price.className = 'top-stock-price';
         price.textContent = formatPrice(asset.price, asset.currency);
-        button.append(top, ticker, name, price);
+        button.append(top, status, ticker, name, price);
         button.addEventListener('click', () => {
           state.category = 'Aktien';
           state.query = '';
@@ -565,7 +571,9 @@
         else observations.push(`Der Kurs ${returnPct > 0 ? 'stieg' : 'fiel'} um ${Math.abs(returnPct).toFixed(2)} %`);
       }
       const sma50 = asset.indicators.sma50;
-      if (sma50 !== null) observations.push(last >= sma50 ? 'der letzte Datenpunkt liegt über der SMA 50' : 'der letzte Datenpunkt liegt unter der SMA 50');
+      if (sma50 !== null) observations.push(last >= sma50 ? 'der letzte Chartwert liegt über der 50-Tage-Durchschnittslinie' : 'der letzte Chartwert liegt unter der 50-Tage-Durchschnittslinie');
+      const sma200 = asset.indicators.sma200;
+      if (sma200 !== null) observations.push(last >= sma200 ? 'der letzte Chartwert liegt über der 200-Tage-Durchschnittslinie' : 'der letzte Chartwert liegt unter der 200-Tage-Durchschnittslinie');
       if (rsi !== null) {
         if (rsi >= 70) observations.push('der RSI liegt über 70');
         else if (rsi <= 30) observations.push('der RSI liegt unter 30');

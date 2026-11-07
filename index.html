@@ -146,6 +146,25 @@
     @keyframes site-web-pulse{0%,100%{opacity:.13}50%{opacity:.25}}
     @media(prefers-reduced-motion:reduce){body::before{animation:none;opacity:.18}}
   </style>
+  <style id="news-block-design">
+    .news-section{margin:8px 0 24px;padding:17px;border:1px solid #2e3642;background:rgba(18,23,32,.94)}
+    .news-head{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;margin-bottom:13px}
+    .news-head h2{margin:3px 0;color:#f0eee8;font-size:1.06rem;letter-spacing:-.02em}
+    .news-head p{margin:4px 0 0;color:#a6afb9;font-size:.72rem}
+    .news-stamp{color:#9aa4b1;font-size:.66rem;white-space:nowrap}
+    .news-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+    .news-card{min-width:0;padding:12px 13px;border:1px solid #303947;background:rgba(12,16,23,.74)}
+    .news-card-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px}
+    .news-source,.news-date{color:#9aa4b1;font-size:.65rem}
+    .news-link{display:inline-block;color:#e9e6df;font-size:.82rem;line-height:1.42;font-weight:650;text-decoration:none}
+    .news-link:hover{text-decoration:underline;text-decoration-color:#d7b56d;text-underline-offset:3px}
+    .news-link:focus-visible{outline:2px solid #d7b56d;outline-offset:3px}
+    .news-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+    .news-tag{padding:3px 6px;border:1px solid #4a402e;color:#d9c58e;font-size:.6rem}
+    .news-relevance,.news-note,.news-empty{margin:8px 0 0;color:#818b97;font-size:.64rem;line-height:1.45}
+    .news-empty{padding:12px;border:1px dashed #3b4450}
+    @media(max-width:760px){.news-section{padding:13px}.news-head{align-items:flex-start;flex-direction:column;gap:4px}.news-list{grid-template-columns:1fr}}
+  </style>
   <style id="daily-market-brief-design">
     .daily-brief{display:grid;gap:10px;margin:4px 0 10px;padding:15px 17px;border:1px solid #4a402e;background:rgba(18,23,32,.96)}
     .daily-brief-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
@@ -180,6 +199,13 @@
       <div class="top-five-head"><div><div class="eyebrow">Aktienradar</div><h2 id="top-five-title">Top 5 Aktien</h2><p>Nach Tagesperformance sortiert · letzter verfügbarer Schlusskurs gegen vorherigen Schlusskurs · keine Anlageempfehlung</p></div><span id="top-five-stamp" class="top-five-stamp">Datenstand: —</span></div>
       <div id="top-five-list" class="top-five-grid" aria-live="polite"></div>
       <p id="top-five-empty" class="top-five-empty" hidden>Aktuell sind keine Aktien mit Tagesänderung im Datensatz.</p>
+    </section>
+
+    <section id="news" class="news-section panel" aria-labelledby="news-title">
+      <div class="news-head"><div><div class="eyebrow">Markt & Unternehmen</div><h2 id="news-title">Aktuelle Nachrichten</h2><p>Marktumfeld und Meldungen zu den aktuellen Top-5-Aktien · kein Nachweis einer Kursursache</p></div><span id="news-stamp" class="news-stamp">Newsstand: wird geladen…</span></div>
+      <div id="news-list" class="news-list" aria-live="polite" aria-busy="true"></div>
+      <p id="news-empty" class="news-empty" role="status" hidden></p>
+      <p id="news-note" class="news-note">Kurzmeldungen aus dem deutschsprachig lokalisierten Google-News-RSS-Suchfeed; Quelle und Veröffentlichungszeit stehen je Meldung. Feedverfügbarkeit und Suchergebnisse können variieren.</p>
     </section>
 
     <section id="analysen" class="section" aria-labelledby="analysis-title">
@@ -328,6 +354,7 @@
       $('asset-empty').hidden = false;
       renderTopFive();
       renderDailyBrief('nicht verfügbar');
+      renderNews([], 'unavailable', 'nicht verfügbar');
       $('asset-content').hidden = true;
       $('ticker-buttons').replaceChildren();
       setText('last-updated', 'nicht verfügbar');
@@ -354,6 +381,7 @@
         setText('last-updated', `${stamp} · ${assets.length} Werte`);
         renderDailyBrief(stamp);
         renderTopFive(stamp);
+        renderNews(data.news, data.news_status, stamp);
         renderCategoryFilters();
         renderAssetButtons();
       } catch (error) {
@@ -466,6 +494,85 @@
         });
         list.appendChild(button);
       });
+    }
+
+    function normalizeNewsItem(raw) {
+      if (!raw || typeof raw !== 'object') return null;
+      const title = typeof raw.title === 'string' ? raw.title.trim() : '';
+      const source = typeof raw.source === 'string' ? raw.source.trim() : '';
+      const urlText = typeof raw.url === 'string' ? raw.url.trim() : '';
+      if (!title || !source || !urlText) return null;
+      let url;
+      try { url = new URL(urlText); } catch (_) { return null; }
+      if (url.protocol !== 'https:') return null;
+      const publishedAt = typeof raw.published_at === 'string' ? raw.published_at : '';
+      const tickers = Array.isArray(raw.related_tickers)
+        ? raw.related_tickers.filter((ticker) => typeof ticker === 'string').map((ticker) => ticker.trim()).filter(Boolean).slice(0, 5)
+        : [];
+      return {
+        title: title.slice(0, 300), source: source.slice(0, 120), url: url.href,
+        publishedAt, relatedTickers: [...new Set(tickers)],
+        relevanceNote: typeof raw.relevance_note === 'string' ? raw.relevance_note.slice(0, 240) : ''
+      };
+    }
+
+    function renderNews(rawNews, status, stamp = 'nicht verfügbar') {
+      const list = $('news-list');
+      list.replaceChildren();
+      list.setAttribute('aria-busy', 'false');
+      const news = Array.isArray(rawNews) ? rawNews.map(normalizeNewsItem).filter(Boolean).slice(0, 5) : [];
+      setText('news-stamp', `Newsstand: ${stamp}`);
+      $('news-empty').hidden = news.length > 0;
+      if (!news.length) {
+        const messages = {
+          unavailable: 'Der News-Feed war beim letzten Aktualisierungslauf nicht erreichbar. Die Kursdaten bleiben davon unabhängig.',
+          partial: 'Es konnten aktuell keine Meldungen geladen werden; mindestens ein Feed war nur teilweise verfügbar.',
+          no_results: 'Im letzten Aktualisierungslauf wurden keine passenden Meldungen im Suchfenster gefunden.',
+          missing: 'Für diesen Datensatz sind noch keine News enthalten. Nach Übernahme des Pipeline-Updates werden sie ergänzt.'
+        };
+        setText('news-empty', messages[status] || messages.missing);
+        return;
+      }
+      news.forEach((item) => {
+        const card = document.createElement('article');
+        card.className = 'news-card';
+        const top = document.createElement('div');
+        top.className = 'news-card-top';
+        const source = document.createElement('span');
+        source.className = 'news-source';
+        source.textContent = item.source;
+        const date = document.createElement('time');
+        date.className = 'news-date';
+        const parsedDate = new Date(item.publishedAt);
+        if (item.publishedAt && Number.isFinite(parsedDate.getTime())) {
+          date.dateTime = parsedDate.toISOString();
+          date.textContent = new Intl.DateTimeFormat('de-DE', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Europe/Berlin' }).format(parsedDate);
+        } else {
+          date.textContent = 'Zeitpunkt nicht verfügbar';
+        }
+        top.append(source, date);
+        const link = document.createElement('a');
+        link.className = 'news-link';
+        link.href = item.url;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.textContent = item.title;
+        const tags = document.createElement('div');
+        tags.className = 'news-tags';
+        const labels = item.relatedTickers.length ? item.relatedTickers : ['Marktumfeld'];
+        labels.forEach((label) => {
+          const tag = document.createElement('span');
+          tag.className = 'news-tag';
+          tag.textContent = label;
+          tags.appendChild(tag);
+        });
+        const relevance = document.createElement('p');
+        relevance.className = 'news-relevance';
+        relevance.textContent = item.relevanceNote || 'Möglicher thematischer Bezug; kein Nachweis einer Kursursache.';
+        card.append(top, link, tags, relevance);
+        list.appendChild(card);
+      });
+      if (status === 'partial') setText('news-note', 'News-Feeds teilweise verfügbar; die angezeigte Auswahl kann unvollständig sein. Meldungen zeigen einen möglichen Bezug, keine nachgewiesene Kursursache.');
     }
 
     function getVisibleAssets() {

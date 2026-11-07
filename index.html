@@ -146,6 +146,16 @@
     @keyframes site-web-pulse{0%,100%{opacity:.13}50%{opacity:.25}}
     @media(prefers-reduced-motion:reduce){body::before{animation:none;opacity:.18}}
   </style>
+  <style id="daily-market-brief-design">
+    .daily-brief{display:grid;gap:10px;margin:4px 0 10px;padding:15px 17px;border:1px solid #4a402e;background:rgba(18,23,32,.96)}
+    .daily-brief-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+    .daily-brief-heading h2{margin:3px 0 2px;color:#f0eee8;font-size:1rem;letter-spacing:-.02em}
+    .daily-motivation{margin:4px 0 0;color:#d9c58e;font-size:.79rem}
+    .daily-brief-date{color:#9aa4b1;font-size:.66rem;white-space:nowrap}
+    .daily-market-summary{margin:0;color:#c0c6ce;font-size:.73rem}
+    .daily-brief-note{margin:0;color:#818b97;font-size:.63rem}
+    @media(max-width:760px){.daily-brief{padding:13px}.daily-brief-heading{flex-direction:column;gap:3px}}
+  </style>
 </head>
 <body>
   <header class="topbar">
@@ -158,6 +168,12 @@
     <section class="hero" aria-labelledby="hero-title">
       <div><div class="eyebrow">Automatisierte Marktübersicht</div><h1 id="hero-title">Marktdaten klar sehen.<br><span style="color:var(--green)">Annahmen klar verstehen.</span></h1><p>Technische Kennzahlen und historische Kursverläufe für ausgewählte Basiswerte – ergänzt durch einen transparenten Sparplan-Simulator.</p></div>
       <aside class="hero-note"><strong>Kein Echtzeitversprechen</strong>Die Analysen werden aus dem bereitgestellten Datensatz geladen. Datenstand und Verfügbarkeit hängen von dessen Aktualisierung ab.</aside>
+    </section>
+
+    <section id="daily-brief" class="daily-brief panel" aria-labelledby="daily-brief-title">
+      <div class="daily-brief-heading"><div><div class="eyebrow">Tagesbotschaft</div><h2 id="daily-brief-title">Motivationsbotschaft</h2><p id="daily-motivation" class="daily-motivation">Ein klarer Plan hilft, kurzfristige Kursbewegungen einzuordnen.</p></div><span id="daily-brief-date" class="daily-brief-date">Lade Daten…</span></div>
+      <p id="daily-market-summary" class="daily-market-summary">Der tägliche Überblick wird aus dem aktuellen Datensatz berechnet.</p>
+      <p class="daily-brief-note">Basis: letzter verfügbarer bereinigter Schlusskurs gegenüber dem vorherigen Schlusskurs, jeweils in Euro umgerechnet; die Tagesveränderung enthält daher auch Wechselkurseffekte. Die Einordnung beruht auf den Kursbewegungen der ausgewählten Watchlist – kein Gesamtmarkturteil und keine Anlageempfehlung.</p>
     </section>
 
     <section id="top-stocks" class="top-five-section" aria-labelledby="top-five-title">
@@ -194,7 +210,7 @@
               <div><span>Rückgang vom Hoch</span><strong id="analysis-drawdown">—</strong></div>
               <div><span>Technik</span><strong id="analysis-technical">—</strong></div>
             </div>
-            <p class="analysis-note">Basiert auf dem gewählten Zeitraum: Start-/Endkurs, Hoch/Tief, größtem Rückgang vom Zwischenhoch sowie RSI(14), SMA 50/200 und Trendstatus. Das Tagesplus/-minus vergleicht den letzten verfügbaren bereinigten Schlusskurs mit dem vorherigen Schlusskurs. Keine Nachrichten- oder Ursachenanalyse, keine Prognose oder Anlageempfehlung.</p>
+            <p class="analysis-note">Basiert auf dem gewählten Zeitraum: Start-/Endkurs, Hoch/Tief und größter Rückgang vom Zwischenhoch; technische Einordnung anhand RSI(14), SMA 50/200 und Trendstatus. Chart und Kennzahlen sind mit historischen Tageswechselkursen in Euro umgerechnet; Performance und Tagesplus/-minus enthalten daher auch Wechselkurseffekte. Keine Nachrichten- oder Ursachenanalyse, keine Prognose oder Anlageempfehlung.</p>
           </section>
         </div>
         <p class="fineprint">Daten können verzögert, unvollständig oder fehlerhaft sein. Prüfe Zeitstempel und Quelle, bevor du daraus Schlüsse ziehst.</p>
@@ -311,6 +327,7 @@
       setText('asset-count', '0 / 0 Werte');
       $('asset-empty').hidden = false;
       renderTopFive();
+      renderDailyBrief('nicht verfügbar');
       $('asset-content').hidden = true;
       $('ticker-buttons').replaceChildren();
       setText('last-updated', 'nicht verfügbar');
@@ -335,6 +352,7 @@
         state.assets = assets;
         const stamp = data.last_updated || data.generated_at || 'Zeitstempel fehlt';
         setText('last-updated', `${stamp} · ${assets.length} Werte`);
+        renderDailyBrief(stamp);
         renderTopFive(stamp);
         renderCategoryFilters();
         renderAssetButtons();
@@ -343,6 +361,39 @@
         state.assets = [];
         showDataError('Der Analyse-Datensatz ist nicht verfügbar oder ungültig. Es werden keine Ersatzkurse als aktuelle Marktdaten angezeigt.');
       }
+    }
+
+    const DAILY_MOTIVATION = [
+      'Ein klarer Plan hilft, kurzfristige Kursbewegungen einzuordnen.',
+      'Konsequenz im Prozess ist wichtiger als der Versuch, jede Bewegung vorherzusagen.',
+      'Daten prüfen, Risiken verstehen und Entscheidungen nicht aus dem Moment heraus treffen.',
+      'Geduld ist Teil einer langfristigen Strategie; Tagesbewegungen sind nur ein Ausschnitt.',
+      'Ein guter Marktüberblick beginnt mit nüchternen Zahlen und realistischen Erwartungen.'
+    ];
+
+    function renderDailyBrief(stamp = 'nicht verfügbar') {
+      const now = new Date();
+      const dateLabel = new Intl.DateTimeFormat('de-DE', {
+        weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
+      }).format(now);
+      const dayNumber = Math.floor(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) / 86400000);
+      setText('daily-brief-date', `${dateLabel} · Datenstand: ${stamp}`);
+      setText('daily-motivation', DAILY_MOTIVATION[dayNumber % DAILY_MOTIVATION.length]);
+
+      const stocks = state.assets.filter((asset) => asset.category === 'Aktien' && asset.changePct !== null);
+      const advancers = stocks.filter((asset) => Number(asset.changePct.toFixed(2)) > 0).length;
+      const decliners = stocks.filter((asset) => Number(asset.changePct.toFixed(2)) < 0).length;
+
+      if (!stocks.length) {
+        setText('daily-market-summary', 'Für den letzten verfügbaren Handelstag liegen derzeit keine Tagesveränderungen der Aktien-Watchlist vor.');
+        return;
+      }
+      const ranked = [...stocks].sort((a, b) => b.changePct - a.changePct);
+      const strongest = ranked[0];
+      const weakest = ranked[ranked.length - 1];
+      const dayTone = advancers > decliners ? 'mehrheitlich positiv' : decliners > advancers ? 'mehrheitlich negativ' : 'gemischt';
+      const formatPercent = (value) => `${value > 0 ? '+' : ''}${value.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} %`;
+      setText('daily-market-summary', `Der letzte Handelstag verlief für die beobachtete Aktien-Watchlist ${dayTone}. Stärkster Anstieg: ${strongest.ticker} (${formatPercent(strongest.changePct)}); größter Rückgang: ${weakest.ticker} (${formatPercent(weakest.changePct)}).`);
     }
 
     function renderCategoryFilters() {
@@ -378,9 +429,10 @@
         const button = document.createElement('button');
         button.type = 'button';
         button.className = 'top-stock';
-        const changeClass = asset.changePct > 0 ? 'positive' : asset.changePct < 0 ? 'negative' : 'neutral';
-        const dayStatus = asset.changePct > 0 ? 'im Plus' : asset.changePct < 0 ? 'im Minus' : 'unverändert';
-        button.setAttribute('aria-label', `${rank + 1}. ${asset.name}, letzter Handelstag ${dayStatus}, Veränderung ${asset.changePct.toFixed(2)} Prozent. Zur Analyse öffnen.`);
+        const displayedChangePct = Number(asset.changePct.toFixed(2));
+        const changeClass = displayedChangePct > 0 ? 'positive' : displayedChangePct < 0 ? 'negative' : 'neutral';
+        const dayStatus = displayedChangePct > 0 ? 'im Plus' : displayedChangePct < 0 ? 'im Minus' : 'unverändert';
+        button.setAttribute('aria-label', `${rank + 1}. ${asset.name}, letzter Handelstag ${dayStatus}, Veränderung ${displayedChangePct.toFixed(2)} Prozent. Zur Analyse öffnen.`);
         const top = document.createElement('span');
         top.className = 'top-stock-top';
         const rankNode = document.createElement('span');
@@ -388,7 +440,7 @@
         rankNode.textContent = `#${rank + 1}`;
         const change = document.createElement('span');
         change.className = `top-stock-change ${changeClass}`;
-        change.textContent = `${asset.changePct > 0 ? '+' : ''}${asset.changePct.toFixed(2)} %`;
+        change.textContent = `${displayedChangePct > 0 ? '+' : ''}${displayedChangePct.toFixed(2)} %`;
         top.append(rankNode, change);
         const status = document.createElement('span');
         status.className = `top-stock-status ${changeClass}`;

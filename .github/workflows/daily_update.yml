@@ -2,8 +2,8 @@ name: Tägliches Aktien-Update
 
 on:
   schedule:
-    - cron: '30 21 * * 1-5' # Läuft Mo-Fr um 21:30 Uhr UTC (nach US-Börsenschluss)
-  workflow_dispatch: # Manuelles Starten per Klick im Reiter "Actions" möglich
+    - cron: '30 21 * * 1-5' # Läuft Mo-Fr um 21:30 Uhr UTC
+  workflow_dispatch: # Manuelles Starten per Klick möglich
 
 permissions:
   contents: write
@@ -19,7 +19,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-          cache: 'pip'
 
       - name: Abhängigkeiten installieren
         run: pip install --upgrade pip && pip install yfinance pandas google-genai

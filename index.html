@@ -1,137 +1,178 @@
 <!DOCTYPE html>
-<html lang="de" class="dark">
+<html lang="de" class="dark scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jahdo – Tägliche Aktien- & Sparplan-Analysen</title>
-    <!-- Tailwind CSS für modernes, schnelles Design -->
+    <title>Jahdo – KI-Aktienanalysen & Sparplan-Tools</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
-                        darkbg: '#0f172a',
-                        cardbg: '#1e293b',
-                        accent: '#10b981' // Frisches Finanz-Grün
+                        darkbg: '#090d16',
+                        cardbg: '#111827',
+                        accent: '#10b981'
                     }
                 }
             }
         }
     </script>
 </head>
-<body class="bg-darkbg text-slate-100 font-sans min-h-screen flex flex-col justify-between">
+<body class="bg-darkbg text-slate-100 font-sans min-h-screen flex flex-col justify-between selection:bg-accent selection:text-black">
 
-    <!-- Header / Navigation -->
-    <header class="border-b border-slate-800 bg-cardbg/50 backdrop-blur sticky top-0 z-50">
+    <!-- Header -->
+    <header class="border-b border-slate-800/80 bg-cardbg/70 backdrop-blur-md sticky top-0 z-50">
         <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-            <div class="flex items-center space-x-2">
-                <span class="text-2xl font-black tracking-wider text-accent">JAHDO</span>
-                <span class="text-xs bg-accent/20 text-accent px-2 py-0.5 rounded-full font-medium">Alpha</span>
+            <div class="flex items-center space-x-3">
+                <div class="w-3 h-3 rounded-full bg-accent animate-pulse"></div>
+                <span class="text-2xl font-black tracking-wider text-white">JAHDO</span>
+                <span class="text-xs bg-accent/15 text-accent border border-accent/30 px-2.5 py-0.5 rounded-full font-medium">AI Finance</span>
             </div>
-            <nav class="hidden md:flex space-x-6 text-sm text-slate-300">
+            <nav class="hidden md:flex space-x-8 text-sm font-medium text-slate-300">
                 <a href="#analysen" class="hover:text-accent transition">Tages-Analysen</a>
                 <a href="#rechner" class="hover:text-accent transition">Sparplan-Rechner</a>
-                <a href="#about" class="hover:text-accent transition">Über das Projekt</a>
             </nav>
         </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="max-w-6xl mx-auto px-4 py-8 flex-grow w-full space-y-12">
+    <!-- Main -->
+    <main class="max-w-6xl mx-auto px-4 py-8 flex-grow w-full space-y-14">
 
-        <!-- Hero Section -->
-        <section class="text-center space-y-4 py-8">
+        <!-- Hero -->
+        <section class="text-center space-y-4 py-6">
             <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight">
-                Kluge Analysen. <span class="text-accent">Automatisierter Vermögensaufbau.</span>
+                Tägliche Markt-Daten. <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">KI-gestützt analysiert.</span>
             </h1>
-            <p class="text-slate-400 max-w-2xl mx-auto text-lg">
-                Tägliche KI-gestützte Analysen zu Top-Aktien und ETFs – klar, verständlich und ohne Rauschen.
+            <p class="text-slate-400 max-w-2xl mx-auto text-base md:text-lg">
+                Automatische technische Indikatoren für Top-Aktien & den FTSE All-World ETF – kombiniert mit klaren Sparplan-Werkzeugen.
             </p>
         </section>
 
-        <!-- Sektion: Tägliche Top-Analyse (Beispiel Apple / FTSE All-World) -->
-        <section id="analysen" class="bg-cardbg border border-slate-800 rounded-2xl p-6 md:p-8 shadow-xl">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center pb-6 border-b border-slate-700 gap-4">
-                <div>
-                    <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Tages-Analyse vom <span id="current-date">Heute</span></span>
-                    <h2 class="text-2xl font-bold mt-1">Apple Inc. (AAPL)</h2>
+        <!-- Sektion: Dynamische Aktien- & ETF-Analyse -->
+        <section id="analysen" class="space-y-4">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <div id="ticker-buttons" class="flex flex-wrap gap-2">
+                    <!-- Buttons werden per JS generiert -->
                 </div>
-                <div class="flex items-center space-x-4">
-                    <div class="text-right">
-                        <div class="text-xl font-bold">189.76 USD</div>
-                        <div class="text-sm text-emerald-400 font-medium">+1.42% (Heute)</div>
+                <span class="text-xs text-slate-400">Stand: <span id="last-updated">Lade Daten...</span></span>
+            </div>
+
+            <div class="bg-cardbg/90 border border-slate-800 rounded-2xl p-6 md:p-8 shadow-2xl space-y-6">
+                <!-- Kopfzeile der Aktie -->
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center pb-6 border-b border-slate-800 gap-4">
+                    <div>
+                        <span id="stock-ticker" class="text-xs uppercase tracking-widest text-accent font-bold">VWCE.DE</span>
+                        <h2 id="stock-name" class="text-2xl md:text-3xl font-bold mt-0.5">Vanguard FTSE All-World ETF</h2>
+                    </div>
+                    <div class="text-left md:text-right">
+                        <div id="stock-price" class="text-2xl md:text-3xl font-black">--</div>
+                        <div id="stock-change" class="text-sm font-semibold mt-0.5">--</div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Kennzahlen Grid -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 my-6">
-                <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-800">
-                    <div class="text-xs text-slate-400">RSI (14 Tage)</div>
-                    <div class="text-lg font-semibold mt-1">61.3 <span class="text-xs text-slate-400">(Neutral)</span></div>
-                </div>
-                <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-800">
-                    <div class="text-xs text-slate-400">SMA 50</div>
-                    <div class="text-lg font-semibold mt-1">175.30 USD</div>
-                </div>
-                <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-800">
-                    <div class="text-xs text-slate-400">KGV (P/E)</div>
-                    <div class="text-lg font-semibold mt-1">28.5</div>
-                </div>
-                <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-800">
-                    <div class="text-xs text-slate-400">Trend</div>
-                    <div class="text-lg font-semibold text-emerald-400 mt-1">Bullish</div>
-                </div>
-            </div>
+                <!-- Chart & Kennzahlen Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
+                    <!-- Chart (30 Tage) -->
+                    <div class="lg:col-span-2 bg-slate-900/60 p-4 rounded-xl border border-slate-800/80 h-64">
+                        <canvas id="priceChart"></canvas>
+                    </div>
 
-            <!-- KI-Kommentar -->
-            <div class="bg-slate-900/80 border-l-4 border-accent p-4 rounded-r-xl space-y-2">
-                <div class="text-xs font-bold text-accent uppercase tracking-wider">Tägliches KI-Fazit</div>
-                <p class="text-slate-300 text-sm leading-relaxed">
-                    Die Apple-Aktie zeigt sich stabil und konnte leicht zulegen, gestützt durch eine positive Marktstimmung. Der RSI (61.3) bewegt sich im neutralen Bereich ohne klare Überkauft-Signale. Der Kurs notiert deutlich über dem SMA 50 (175.30 USD), was den kurzfristigen Aufwärtstrend bestätigt.
-                </p>
+                    <!-- 4er Indikatoren Box -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800/80">
+                            <div class="text-xs text-slate-400">RSI (14 Tage)</div>
+                            <div id="ind-rsi" class="text-lg font-bold mt-1">--</div>
+                        </div>
+                        <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800/80">
+                            <div class="text-xs text-slate-400">SMA 50</div>
+                            <div id="ind-sma50" class="text-lg font-bold mt-1">--</div>
+                        </div>
+                        <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800/80">
+                            <div class="text-xs text-slate-400">SMA 200</div>
+                            <div id="ind-sma200" class="text-lg font-bold mt-1">--</div>
+                        </div>
+                        <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800/80">
+                            <div class="text-xs text-slate-400">Trend / KGV</div>
+                            <div id="ind-trend" class="text-lg font-bold mt-1">--</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KI-Fazit -->
+                <div class="bg-gradient-to-r from-emerald-950/40 to-slate-900/80 border-l-4 border-accent p-5 rounded-r-xl space-y-2">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-xs font-bold text-accent uppercase tracking-wider">Tägliches KI-Fazit</span>
+                    </div>
+                    <p id="ai-commentary" class="text-slate-200 text-sm md:text-base leading-relaxed">
+                        Lade aktuelle Analyse...
+                    </p>
+                </div>
             </div>
         </section>
 
         <!-- Sektion: Interaktiver Sparplan-Rechner -->
-        <section id="rechner" class="bg-cardbg border border-slate-800 rounded-2xl p-6 md:p-8 shadow-xl space-y-6">
-            <div class="border-b border-slate-700 pb-4">
-                <h2 class="text-2xl font-bold">Sparplan & Zinseszins Rechner</h2>
-                <p class="text-slate-400 text-sm">Berechne das Wachstum deines monatlichen Investments.</p>
+        <section id="rechner" class="bg-cardbg/90 border border-slate-800 rounded-2xl p-6 md:p-8 shadow-2xl space-y-6">
+            <div class="border-b border-slate-800 pb-4">
+                <h2 class="text-2xl font-bold">ETF-Sparplan & Zinseszins-Rechner</h2>
+                <p class="text-slate-400 text-sm mt-1">Simuliere deinen langfristigen Vermögensaufbau bei monatlicher Besparung.</p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-sm font-medium text-slate-300 mb-1">Monatliche Sparrate (€)</label>
-                        <input type="number" id="spar-rate" value="100" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:outline-none focus:border-accent">
+                        <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1">Startkapital (€)</label>
+                        <input type="number" id="start-kapital" value="1000" min="0" step="100" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white font-semibold focus:outline-none focus:border-accent">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-300 mb-1">Anlagedauer (Jahre)</label>
-                        <input type="number" id="jahre" value="15" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:outline-none focus:border-accent">
+                        <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1">Monatliche Sparrate (€)</label>
+                        <input type="number" id="spar-rate" value="100" min="0" step="25" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white font-semibold focus:outline-none focus:border-accent">
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-slate-300 mb-1">Erwartete Rendite p.a. (%)</label>
-                        <input type="number" id="rendite" value="7" step="0.5" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:outline-none focus:border-accent">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1">Dauer (Jahre)</label>
+                            <input type="number" id="jahre" value="15" min="1" max="50" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white font-semibold focus:outline-none focus:border-accent">
+                        </div>
+                        <div>
+                            <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1">Rendite p.a. (%)</label>
+                            <input type="number" id="rendite" value="7.0" step="0.5" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white font-semibold focus:outline-none focus:border-accent">
+                        </div>
                     </div>
                 </div>
 
-                <div class="md:col-span-2 bg-slate-900/60 border border-slate-800 rounded-xl p-6 flex flex-col justify-center space-y-6">
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <div class="text-xs text-slate-400">Einzahlungen gesamt</div>
-                            <div id="res-einzahlung" class="text-xl font-bold mt-1 text-slate-200">18.000 €</div>
+                <div class="md:col-span-2 bg-slate-900/70 border border-slate-800 rounded-xl p-6 flex flex-col justify-between space-y-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="p-4 rounded-lg bg-slate-950/60 border border-slate-800/60">
+                            <div class="text-xs text-slate-400">Eigene Einzahlungen</div>
+                            <div id="res-einzahlung" class="text-xl font-bold mt-1 text-slate-200">--</div>
                         </div>
-                        <div>
-                            <div class="text-xs text-slate-400">Voraussichtlicher Endwert</div>
-                            <div id="res-endwert" class="text-2xl font-black mt-1 text-accent">29.500 €</div>
+                        <div class="p-4 rounded-lg bg-slate-950/60 border border-slate-800/60">
+                            <div class="text-xs text-slate-400">Zinserträge / Gewinn</div>
+                            <div id="res-zinsen" class="text-xl font-bold mt-1 text-emerald-400">--</div>
+                        </div>
+                        <div class="p-4 rounded-lg bg-emerald-950/30 border border-accent/40">
+                            <div class="text-xs text-accent font-semibold">Voraussichtlicher Endwert</div>
+                            <div id="res-endwert" class="text-2xl font-black mt-1 text-white">--</div>
                         </div>
                     </div>
-                    <div class="text-xs text-slate-500">
-                        *Hinweis: Dies ist eine vereinfachte Beispielrechnung zur Veranschaulichung des Zinseszins-Effekts (ohne Steuern und Gebühren).
+
+                    <!-- Visueller Fortschrittsbalken Einzahlung vs. Zinsen -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-xs text-slate-400">
+                            <span id="bar-label-einzahlung">Einzahlungen (60%)</span>
+                            <span id="bar-label-zinsen" class="text-accent">Zinseszins-Anteil (40%)</span>
+                        </div>
+                        <div class="w-full h-3 bg-slate-800 rounded-full overflow-hidden flex">
+                            <div id="bar-einzahlung" class="bg-slate-500 h-full transition-all duration-300" style="width: 60%"></div>
+                            <div id="bar-zinsen" class="bg-accent h-full transition-all duration-300" style="width: 40%"></div>
+                        </div>
                     </div>
+
+                    <p class="text-xs text-slate-500">
+                        *Hinweis: Keine Anlageberatung. Alle Angaben dienen ausschließlich Informationszwecken.
+                    </p>
                 </div>
             </div>
         </section>
@@ -139,41 +180,176 @@
     </main>
 
     <!-- Footer -->
-    <footer class="border-t border-slate-800 bg-cardbg/30 mt-12 py-6 text-center text-xs text-slate-500">
-        <p>&copy; 2026 Jahdo. Alle Rechte vorbehalten. Automatisiert betrieben.</p>
+    <footer class="border-t border-slate-800/80 bg-cardbg/40 mt-12 py-6 text-center text-xs text-slate-500">
+        <p>&copy; 2026 Jahdo. Automatisiertes Finanz- & Analyse-Portal.</p>
     </footer>
 
-    <!-- Einfaches Berechnungs-Script -->
+    <!-- Logik für Datenabruf, Chart & Sparplan-Rechner -->
     <script>
-        document.getElementById('current-date').innerText = new Date().toLocaleDateString('de-DE');
+        let allStocks = [];
+        let chartInstance = null;
 
+        //Fallback-Daten, falls die JSON beim allerersten Start noch leer ist
+        const fallbackData = {
+            last_updated: "Heute (Demo-Daten)",
+            stocks: [{
+                ticker: "VWCE.DE",
+                name: "Vanguard FTSE All-World ETF",
+                currency: "EUR",
+                price: 132.40,
+                change_pct: 0.65,
+                pe_ratio: "–",
+                trend: "Bullish",
+                indicators: { rsi: 58.4, sma_50: 129.10, sma_200: 121.80 },
+                chart: {
+                    labels: ["-5T", "-4T", "-3T", "-2T", "Gestern", "Heute"],
+                    prices: [129.5, 130.1, 129.8, 131.0, 131.5, 132.4]
+                },
+                ai_commentary: "Der Vanguard FTSE All-World ETF zeigt einen intakten Aufwärtstrend und notiert stabil über seinem 50- und 200-Tage-Durchschnitt. Mit einem RSI von 58,4 ist der Markt weder überhitzt noch überverkauft, was eine solide Basis für laufende monatliche Sparpläne darstellt."
+            }]
+        };
+
+        async function loadStockData() {
+            try {
+                const res = await fetch('data/latest_analysis.json?t=' + new Date().getTime());
+                if (!res.ok) throw new Error("JSON nicht gefunden");
+                const data = await res.json();
+                if (!data.stocks || data.stocks.length === 0) throw new Error("JSON noch leer");
+                
+                document.getElementById('last-updated').innerText = data.last_updated;
+                allStocks = data.stocks;
+            } catch (e) {
+                document.getElementById('last-updated').innerText = fallbackData.last_updated;
+                allStocks = fallbackData.stocks;
+            }
+            renderButtons();
+            selectStock(0);
+        }
+
+        function renderButtons() {
+            const container = document.getElementById('ticker-buttons');
+            container.innerHTML = '';
+            allStocks.forEach((s, idx) => {
+                const btn = document.createElement('button');
+                btn.id = `btn-stock-${idx}`;
+                btn.className = "px-4 py-2 rounded-xl text-sm font-bold border transition";
+                btn.innerText = s.ticker;
+                btn.onclick = () => selectStock(idx);
+                container.appendChild(btn);
+            });
+        }
+
+        function selectStock(index) {
+            const s = allStocks[index];
+            if (!s) return;
+
+            // Button-Highlighting aktualisieren
+            allStocks.forEach((_, idx) => {
+                const btn = document.getElementById(`btn-stock-${idx}`);
+                if (idx === index) {
+                    btn.className = "px-4 py-2 rounded-xl text-sm font-bold bg-accent text-slate-950 border border-accent shadow-lg shadow-accent/20 transition";
+                } else {
+                    btn.className = "px-4 py-2 rounded-xl text-sm font-bold bg-cardbg text-slate-300 border border-slate-800 hover:border-slate-600 transition";
+                }
+            });
+
+            document.getElementById('stock-ticker').innerText = s.ticker;
+            document.getElementById('stock-name').innerText = s.name;
+            document.getElementById('stock-price').innerText = `${s.price.toFixed(2)} ${s.currency}`;
+
+            const changeEl = document.getElementById('stock-change');
+            const sign = s.change_pct >= 0 ? '+' : '';
+            changeEl.innerText = `${sign}${s.change_pct.toFixed(2)}% (Heute)`;
+            changeEl.className = s.change_pct >= 0 ? 'text-sm font-semibold text-emerald-400' : 'text-sm font-semibold text-rose-400';
+
+            let rsiLabel = "Neutral";
+            if (s.indicators.rsi > 70) rsiLabel = "Überkauft";
+            if (s.indicators.rsi < 30) rsiLabel = "Überverkauft";
+            document.getElementById('ind-rsi').innerHTML = `${s.indicators.rsi} <span class="text-xs font-normal text-slate-400">(${rsiLabel})</span>`;
+            document.getElementById('ind-sma50').innerText = `${s.indicators.sma_50} ${s.currency}`;
+            document.getElementById('ind-sma200').innerText = `${s.indicators.sma_200} ${s.currency}`;
+
+            const trendColor = s.trend === 'Bullish' ? 'text-emerald-400' : (s.trend === 'Bearish' ? 'text-rose-400' : 'text-amber-400');
+            document.getElementById('ind-trend').innerHTML = `<span class="${trendColor}">${s.trend}</span> <span class="text-xs text-slate-400 font-normal">/ ${s.pe_ratio}</span>`;
+
+            document.getElementById('ai-commentary').innerText = s.ai_commentary;
+
+            renderChart(s.chart.labels, s.chart.prices, s.currency);
+        }
+
+        function renderChart(labels, prices, currency) {
+            const ctx = document.getElementById('priceChart').getContext('2d');
+            if (chartInstance) chartInstance.destroy();
+
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: `Kurs (${currency})`,
+                        data: prices,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: 2.5,
+                        pointRadius: 0,
+                        pointHoverRadius: 5,
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { color: '#64748b', maxTicksLimit: 6 } },
+                        y: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } }
+                    }
+                }
+            });
+        }
+
+        // Sparplan-Rechner Logik (Fehler behoben + Startkapital ergänzt)
         function berechneSparplan() {
+            const start = parseFloat(document.getElementById('start-kapital').value) || 0;
             const rate = parseFloat(document.getElementById('spar-rate').value) || 0;
             const jahre = parseInt(document.getElementById('jahre').value) || 0;
             const zinssatz = (parseFloat(document.getElementById('rendite').value) || 0) / 100;
-            
+
             const monate = jahre * 12;
             const monatlicherZins = zinssatz / 12;
-            
-            // Zinseszinsformel für regelmäßige monatliche Sparraten
+
             let endwert = 0;
             if (monatlicherZins > 0) {
-                endwert = rate * ((Math.pow(1 + monatlicherZins, monate) - 1) / monatlicherZins);
+                const endwertStart = start * Math.pow(1 + monatlicherZins, monate);
+                const endwertRaten = rate * ((Math.pow(1 + monatlicherZins, monate) - 1) / monatlicherZins);
+                endwert = endwertStart + endwertRaten;
             } else {
-                endwert = rate * monate;
+                endwert = start + (rate * monate);
             }
-            
-            consteinzahlungen = rate * monate;
+
+            const einzahlungen = start + (rate * monate);
+            const zinsen = Math.max(0, endwert - einzahlungen);
 
             document.getElementById('res-einzahlung').innerText = Math.round(einzahlungen).toLocaleString('de-DE') + ' €';
+            document.getElementById('res-zinsen').innerText = '+' + Math.round(zinsen).toLocaleString('de-DE') + ' €';
             document.getElementById('res-endwert').innerText = Math.round(endwert).toLocaleString('de-DE') + ' €';
+
+            const pctEinzahlung = endwert > 0 ? Math.round((einzahlungen / endwert) * 100) : 100;
+            const pctZinsen = 100 - pctEinzahlung;
+
+            document.getElementById('bar-einzahlung').style.width = `${pctEinzahlung}%`;
+            document.getElementById('bar-zinsen').style.width = `${pctZinsen}%`;
+            document.getElementById('bar-label-einzahlung').innerText = `Einzahlungen (${pctEinzahlung}%)`;
+            document.getElementById('bar-label-zinsen').innerText = `Zinseszins (${pctZinsen}%)`;
         }
 
-        ['spar-rate', 'jahre', 'rendite'].forEach(id => {
+        ['start-kapital', 'spar-rate', 'jahre', 'rendite'].forEach(id => {
             document.getElementById(id).addEventListener('input', berechneSparplan);
         });
 
         berechneSparplan();
+        loadStockData();
     </script>
 </body>
 </html>

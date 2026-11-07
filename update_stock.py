@@ -151,6 +151,13 @@ TICKERS: list[dict[str, str]] = [
 ]
 
 
+FX_TICKER_BY_CURRENCY = {
+    "USD": "EURUSD=X",
+    "CHF": "EURCHF=X",
+    "DKK": "EURDKK=X",
+}
+
+
 OUTPUT_PATH = Path(os.environ.get("OUTPUT_PATH", "data/latest_analysis.json"))
 GEMINI_MODEL = "gemini-2.5-flash"
 RSI_PERIOD = 14
@@ -443,10 +450,91 @@ def _clean_close(history: pd.DataFrame, symbol: str) -> pd.Series:
 
 
 
-def process_ticker(ticker: dict[str, str], client: Any | None) -> dict[str, Any]:
+def _normalized_dates(index: pd.Index) -> pd.DatetimeIndex:
+    dates = pd.DatetimeIndex(index)
+    if dates.tz is not None:
+        dates = dates.tz_localize(None)
+    return dates.normalize()
+
+
+
+
+def _normalize_daily_series(series: pd.Series) -> pd.Series:
+    dates = _normalized_dates(series.index)
+    normalized = pd.Series(pd.to_numeric(series, errors="coerce").to_numpy(dtype="float64"), index=dates)
+    normalized = normalized.dropna()
+    normalized = normalized.loc[~normalized.index.duplicated(keep="last")].sort_index()
+    return normalized
+
+
+
+
+def load_fx_histories(tickers: list[dict[str, str]]) -> dict[str, pd.Series]:
+    """Fetch one daily EUR-to-foreign-currency series per required currency."""
+    currencies = sorted({ticker["currency"].upper() for ticker in tickers if ticker["currency"].upper() != "EUR"})
+    fx_histories: dict[str, pd.Series] = {}
+    for currency in currencies:
+        pair = FX_TICKER_BY_CURRENCY.get(currency)
+        if not pair:
+            LOGGER.error("No EUR conversion pair configured for %s", currency)
+            continue
+        try:
+            fx_history = download_history(pair)
+            fx_histories[currency] = _normalize_daily_series(_clean_close(fx_history, pair))
+            LOGGER.info("Loaded EUR/%s conversion history from %s", currency, pair)
+        except Exception as exc:
+            LOGGER.exception("Could not load EUR/%s conversion history: %s", currency, exc)
+    return fx_histories
+
+
+
+
+def convert_close_to_eur(
+    close: pd.Series,
+    currency: str,
+    fx_histories: dict[str, pd.Series],
+) -> tuple[pd.Series, float]:
+    """Convert each daily close using the latest FX rate on or before that date."""
+    currency = currency.upper()
+    if currency == "EUR":
+        return close.astype("float64"), 1.0
+
+
+    fx = fx_histories.get(currency)
+    if fx is None or fx.empty:
+        raise ValueError(f"EUR FX history unavailable for {currency}")
+
+
+    daily_fx = _normalize_daily_series(fx)
+    stock_dates = _normalized_dates(close.index)
+    aligned_fx = daily_fx.reindex(stock_dates, method="ffill")
+    rate_values = aligned_fx.to_numpy(dtype="float64")
+    source_values = close.to_numpy(dtype="float64")
+    converted = pd.Series(source_values / rate_values, index=close.index, dtype="float64")
+    converted = converted.replace([float("inf"), float("-inf")], float("nan")).dropna()
+    converted = converted[converted > 0]
+    if len(converted) < MIN_HISTORY:
+        raise ValueError(f"not enough EUR-converted history for {currency}: {len(converted)}")
+    latest_fx_rate = float(aligned_fx.dropna().iloc[-1])
+    return converted, latest_fx_rate
+
+
+
+
+def process_ticker(
+    ticker: dict[str, str],
+    client: Any | None,
+    fx_histories: dict[str, pd.Series] | None = None,
+) -> dict[str, Any]:
     symbol = ticker["symbol"]
     history = download_history(symbol)
     close = _clean_close(history, symbol)
+    source_currency = ticker["currency"].upper()
+    fx_rate = 1.0
+    if source_currency != "EUR":
+        if fx_histories is None:
+            raise ValueError(f"EUR FX history is required to convert {source_currency}")
+        close, fx_rate = convert_close_to_eur(close, source_currency, fx_histories)
 
 
     price = float(close.iloc[-1])
@@ -476,13 +564,15 @@ def process_ticker(ticker: dict[str, str], client: Any | None) -> dict[str, Any]
     item: dict[str, Any] = {
         "ticker": symbol,
         "name": ticker["name"],
-        "currency": ticker["currency"],
+        "currency": "EUR",
+        "source_currency": source_currency,
+        "fx_rate_per_eur": _rounded(fx_rate, 8),
         "cat": ticker["cat"],
         "price": round(price, 8),
         "change_pct": _rounded(change_pct, 4),
         "trend": trend,
         "data_as_of": data_as_of,
-        "price_basis": "auto_adjusted_close",
+        "price_basis": "auto_adjusted_close_fx_converted_to_eur",
         "indicators": {
             "rsi": _rounded(rsi, 2),
             "sma_50": _rounded(sma_50, 8),
@@ -549,6 +639,14 @@ def main() -> None:
     configure_logging()
     client = create_gemini_client()
     generated_at = datetime.now(timezone.utc)
+    fx_histories = load_fx_histories(TICKERS)
+    required_fx_currencies = {ticker["currency"].upper() for ticker in TICKERS if ticker["currency"].upper() != "EUR"}
+    missing_fx_currencies = sorted(required_fx_currencies - set(fx_histories))
+    if missing_fx_currencies:
+        raise SystemExit(
+            "Missing FX history for " + ", ".join(missing_fx_currencies)
+            + "; existing JSON was left untouched."
+        )
     stocks: list[dict[str, Any]] = []
     failed_symbols: list[str] = []
     ai_targets_used = 0
@@ -568,7 +666,7 @@ def main() -> None:
 
 
         try:
-            item = process_ticker(ticker, ticker_client)
+            item = process_ticker(ticker, ticker_client, fx_histories)
             stocks.append(item)
             if item.get("commentary_type") == "ai":
                 ai_successes += 1

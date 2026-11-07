@@ -138,7 +138,7 @@
       { key: '1y', label: '1J' }, { key: '2y', label: '2J' },
       { key: 'max', label: 'MAX' }
     ];
-    const state = { assets: [], selectedIndex: -1, range: '1m', chart: null };
+    const state = { assets: [], selectedIndex: -1, range: 'max', chart: null };
     const $ = (id) => document.getElementById(id);
     const asFiniteNumber = (value) => {
       if (value === null || value === undefined || value === '') return null;

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="de" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jahdo – Tägliche Aktien- & Sparplan-Analysen</title>
+    <!-- Tailwind CSS für modernes, schnelles Design -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkbg: '#0f172a',
+                        cardbg: '#1e293b',
+                        accent: '#10b981' // Frisches Finanz-Grün
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-darkbg text-slate-100 font-sans min-h-screen flex flex-col justify-between">
+
+    <!-- Header / Navigation -->
+    <header class="border-b border-slate-800 bg-cardbg/50 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <span class="text-2xl font-black tracking-wider text-accent">JAHDO</span>
+                <span class="text-xs bg-accent/20 text-accent px-2 py-0.5 rounded-full font-medium">Alpha</span>
+            </div>
+            <nav class="hidden md:flex space-x-6 text-sm text-slate-300">
+                <a href="#analysen" class="hover:text-accent transition">Tages-Analysen</a>
+                <a href="#rechner" class="hover:text-accent transition">Sparplan-Rechner</a>
+                <a href="#about" class="hover:text-accent transition">Über das Projekt</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-6xl mx-auto px-4 py-8 flex-grow w-full space-y-12">
+
+        <!-- Hero Section -->
+        <section class="text-center space-y-4 py-8">
+            <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight">
+                Kluge Analysen. <span class="text-accent">Automatisierter Vermögensaufbau.</span>
+            </h1>
+            <p class="text-slate-400 max-w-2xl mx-auto text-lg">
+                Tägliche KI-gestützte Analysen zu Top-Aktien und ETFs – klar, verständlich und ohne Rauschen.
+            </p>
+        </section>
+
+        <!-- Sektion: Tägliche Top-Analyse (Beispiel Apple / FTSE All-World) -->
+        <section id="analysen" class="bg-cardbg border border-slate-800 rounded-2xl p-6 md:p-8 shadow-xl">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center pb-6 border-b border-slate-700 gap-4">
+                <div>
+                    <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Tages-Analyse vom <span id="current-date">Heute</span></span>
+                    <h2 class="text-2xl font-bold mt-1">Apple Inc. (AAPL)</h2>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="text-right">
+                        <div class="text-xl font-bold">189.76 USD</div>
+                        <div class="text-sm text-emerald-400 font-medium">+1.42% (Heute)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kennzahlen Grid -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 my-6">
+                <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-800">
+                    <div class="text-xs text-slate-400">RSI (14 Tage)</div>
+                    <div class="text-lg font-semibold mt-1">61.3 <span class="text-xs text-slate-400">(Neutral)</span></div>
+                </div>
+                <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-800">
+                    <div class="text-xs text-slate-400">SMA 50</div>
+                    <div class="text-lg font-semibold mt-1">175.30 USD</div>
+                </div>
+                <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-800">
+                    <div class="text-xs text-slate-400">KGV (P/E)</div>
+                    <div class="text-lg font-semibold mt-1">28.5</div>
+                </div>
+                <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-800">
+                    <div class="text-xs text-slate-400">Trend</div>
+                    <div class="text-lg font-semibold text-emerald-400 mt-1">Bullish</div>
+                </div>
+            </div>
+
+            <!-- KI-Kommentar -->
+            <div class="bg-slate-900/80 border-l-4 border-accent p-4 rounded-r-xl space-y-2">
+                <div class="text-xs font-bold text-accent uppercase tracking-wider">Tägliches KI-Fazit</div>
+                <p class="text-slate-300 text-sm leading-relaxed">
+                    Die Apple-Aktie zeigt sich stabil und konnte leicht zulegen, gestützt durch eine positive Marktstimmung. Der RSI (61.3) bewegt sich im neutralen Bereich ohne klare Überkauft-Signale. Der Kurs notiert deutlich über dem SMA 50 (175.30 USD), was den kurzfristigen Aufwärtstrend bestätigt.
+                </p>
+            </div>
+        </section>
+
+        <!-- Sektion: Interaktiver Sparplan-Rechner -->
+        <section id="rechner" class="bg-cardbg border border-slate-800 rounded-2xl p-6 md:p-8 shadow-xl space-y-6">
+            <div class="border-b border-slate-700 pb-4">
+                <h2 class="text-2xl font-bold">Sparplan & Zinseszins Rechner</h2>
+                <p class="text-slate-400 text-sm">Berechne das Wachstum deines monatlichen Investments.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-1">Monatliche Sparrate (€)</label>
+                        <input type="number" id="spar-rate" value="100" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:outline-none focus:border-accent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-1">Anlagedauer (Jahre)</label>
+                        <input type="number" id="jahre" value="15" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:outline-none focus:border-accent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-1">Erwartete Rendite p.a. (%)</label>
+                        <input type="number" id="rendite" value="7" step="0.5" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:outline-none focus:border-accent">
+                    </div>
+                </div>
+
+                <div class="md:col-span-2 bg-slate-900/60 border border-slate-800 rounded-xl p-6 flex flex-col justify-center space-y-6">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <div class="text-xs text-slate-400">Einzahlungen gesamt</div>
+                            <div id="res-einzahlung" class="text-xl font-bold mt-1 text-slate-200">18.000 €</div>
+                        </div>
+                        <div>
+                            <div class="text-xs text-slate-400">Voraussichtlicher Endwert</div>
+                            <div id="res-endwert" class="text-2xl font-black mt-1 text-accent">29.500 €</div>
+                        </div>
+                    </div>
+                    <div class="text-xs text-slate-500">
+                        *Hinweis: Dies ist eine vereinfachte Beispielrechnung zur Veranschaulichung des Zinseszins-Effekts (ohne Steuern und Gebühren).
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800 bg-cardbg/30 mt-12 py-6 text-center text-xs text-slate-500">
+        <p>&copy; 2026 Jahdo. Alle Rechte vorbehalten. Automatisiert betrieben.</p>
+    </footer>
+
+    <!-- Einfaches Berechnungs-Script -->
+    <script>
+        document.getElementById('current-date').innerText = new Date().toLocaleDateString('de-DE');
+
+        function berechneSparplan() {
+            const rate = parseFloat(document.getElementById('spar-rate').value) || 0;
+            const jahre = parseInt(document.getElementById('jahre').value) || 0;
+            const zinssatz = (parseFloat(document.getElementById('rendite').value) || 0) / 100;
+            
+            const monate = jahre * 12;
+            const monatlicherZins = zinssatz / 12;
+            
+            // Zinseszinsformel für regelmäßige monatliche Sparraten
+            let endwert = 0;
+            if (monatlicherZins > 0) {
+                endwert = rate * ((Math.pow(1 + monatlicherZins, monate) - 1) / monatlicherZins);
+            } else {
+                endwert = rate * monate;
+            }
+            
+            consteinzahlungen = rate * monate;
+
+            document.getElementById('res-einzahlung').innerText = Math.round(einzahlungen).toLocaleString('de-DE') + ' €';
+            document.getElementById('res-endwert').innerText = Math.round(endwert).toLocaleString('de-DE') + ' €';
+        }
+
+        ['spar-rate', 'jahre', 'rendite'].forEach(id => {
+            document.getElementById(id).addEventListener('input', berechneSparplan);
+        });
+
+        berechneSparplan();
+    </script>
+</body>
+</html>

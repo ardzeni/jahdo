@@ -68,4 +68,78 @@ def run_update():
         try:
             client = genai.Client(api_key=api_key)
         except Exception as e:
-            print(f"Kon
+            print(f"Konnte Gemini Client nicht initialisieren: {e}")
+
+    results = {
+        "last_updated": datetime.now().strftime("%d.%m.%Y %H:%M"),
+        "stocks": []
+    }
+
+    for item in TICKERS:
+        symbol = item["symbol"]
+        print(f"Lade Daten für {symbol}...")
+        try:
+            stock = yf.Ticker(symbol)
+            df = stock.history(period="1y", auto_adjust=True)
+            if df.empty or len(df) < 30:
+                print(f"Zu wenig Daten für {symbol}, überspringe...")
+                continue
+
+            close_series = df["Close"].dropna()
+            current_price = float(close_series.iloc[-1])
+            prev_close = float(close_series.iloc[-2]) if len(close_series) > 1 else current_price
+            change_pct = ((current_price - prev_close) / prev_close) * 100 if prev_close else 0.0
+
+            sma_50_series = close_series.rolling(window=50).mean()
+            sma_200_series = close_series.rolling(window=200).mean()
+            rsi_series = calculate_rsi(close_series, 14)
+
+            rsi_val = float(rsi_series.iloc[-1]) if not pd.isna(rsi_series.iloc[-1]) else 50.0
+            sma50_val = float(sma_50_series.iloc[-1]) if not pd.isna(sma_50_series.iloc[-1]) else current_price
+            sma200_val = float(sma_200_series.iloc[-1]) if not pd.isna(sma_200_series.iloc[-1]) else current_price
+
+            if current_price > sma50_val and sma50_val >= sma200_val:
+                trend = "Bullish"
+            elif current_price < sma50_val and sma50_val < sma200_val:
+                trend = "Bearish"
+            else:
+                trend = "Neutral"
+
+            recent_close = close_series.tail(30)
+            history_dates = [d.strftime("%d.%m.") for d in recent_close.index]
+            history_prices = [round(float(p), 2) for p in recent_close]
+
+            stock_data = {
+                "ticker": symbol,
+                "name": item["name"],
+                "currency": item["currency"],
+                "price": round(current_price, 2),
+                "change_pct": round(change_pct, 2),
+                "pe_ratio": "–",
+                "trend": trend,
+                "indicators": {
+                    "rsi": round(rsi_val, 1),
+                    "sma_50": round(sma50_val, 2),
+                    "sma_200": round(sma200_val, 2)
+                },
+                "chart": {
+                    "labels": history_dates,
+                    "prices": history_prices
+                }
+            }
+
+            stock_data["ai_commentary"] = generate_ai_analysis(client, stock_data)
+            results["stocks"].append(stock_data)
+
+        except Exception as e:
+            print(f"Fehler bei {symbol}: {e}")
+
+    os.makedirs("data", exist_ok=True)
+    output_path = os.path.join("data", "latest_analysis.json")
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(results, f, ensure_ascii=False, indent=2)
+    print("Alle Analysen erfolgreich in data/latest_analysis.json gespeichert!")
+
+
+if __name__ == "__main__":
+    run_update()

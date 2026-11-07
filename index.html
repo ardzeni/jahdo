@@ -1,355 +1,444 @@
-<!DOCTYPE html>
-<html lang="de" class="dark scroll-smooth">
+<!doctype html>
+<html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jahdo – KI-Aktienanalysen & Sparplan-Tools</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        darkbg: '#090d16',
-                        cardbg: '#111827',
-                        accent: '#10b981'
-                    }
-                }
-            }
-        }
-    </script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080d16">
+  <meta name="description" content="Automatisierte Marktanalysen und ein transparenter Sparplan-Simulator.">
+  <title>Jahdo — Marktanalysen & Vermögensaufbau</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{color-scheme:dark;--bg:#080d16;--panel:#101827;--panel2:#121d2d;--line:#253246;--muted:#91a0b5;--text:#f3f6fb;--green:#34d399;--green-dark:#08281f;--red:#fb7185;--amber:#fbbf24;--radius:18px;font-family:"Plus Jakarta Sans",Inter,system-ui,sans-serif}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);line-height:1.55}button,input{font:inherit}button,a,input{outline-offset:3px}a{color:inherit}button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--green)}
+    .wrap{width:min(1120px,calc(100% - 36px));margin-inline:auto}.topbar{border-bottom:1px solid var(--line);background:rgba(8,13,22,.94)}.nav{min-height:72px;display:flex;align-items:center;justify-content:space-between;gap:20px}.brand{display:flex;align-items:center;gap:11px;text-decoration:none;font-weight:800;letter-spacing:.03em}.brand-mark{width:35px;height:35px;display:grid;place-items:center;background:var(--green);color:#062016;border-radius:11px;font-weight:900}.navlinks{display:flex;gap:22px;align-items:center}.navlinks a{font-size:.87rem;color:#bdc8d7;text-decoration:none}.navlinks a:hover{color:var(--green)}
+    .hero{padding:58px 0 34px;display:grid;grid-template-columns:1.5fr .8fr;gap:34px;align-items:end}.eyebrow{color:var(--green);text-transform:uppercase;letter-spacing:.14em;font-size:.72rem;font-weight:800}.hero h1{max-width:760px;margin:12px 0 14px;font-size:clamp(2.2rem,5vw,4.35rem);line-height:1.04;letter-spacing:-.055em}.hero p{max-width:650px;margin:0;color:#aab6c7;font-size:1rem}.hero-note{border-left:2px solid var(--green);padding:4px 0 4px 17px;color:#b8c4d4;font-size:.88rem}.hero-note strong{display:block;color:var(--text);margin-bottom:5px}
+    .section{padding:30px 0}.section-heading{display:flex;justify-content:space-between;align-items:end;gap:20px;margin-bottom:15px}.section-heading h2{margin:4px 0 0;font-size:1.55rem;letter-spacing:-.035em}.section-heading p{margin:0;color:var(--muted);font-size:.88rem}.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius)}.radar{padding:22px}.radar-head{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:17px}.radar-head h3{margin:0;font-size:1rem}.radar-head p{margin:4px 0 0;color:var(--muted);font-size:.82rem}.status{font-size:.76rem;color:#bfccdc;text-align:right;max-width:290px}.status strong{color:var(--green)}.notice{margin:0 0 14px;padding:11px 13px;border-radius:10px;background:#172336;color:#cfdae7;font-size:.82rem}.notice[hidden]{display:none}.asset-list,.range-list{display:flex;flex-wrap:wrap;gap:8px}.asset-list{margin-bottom:18px}.chip{border:1px solid var(--line);background:#0c1421;color:#c7d1df;border-radius:10px;padding:9px 12px;font-size:.78rem;font-weight:700;cursor:pointer;transition:background .15s,border-color .15s,color .15s}.chip:hover{border-color:#3c526d;color:#fff}.chip[aria-pressed="true"]{background:var(--green);color:#062016;border-color:var(--green)}.range-list{margin:16px 0}.range-chip{padding:6px 10px;font-size:.73rem}.asset-empty{padding:22px;border:1px dashed #34445b;border-radius:12px;color:#bdc8d7}.asset-empty strong{display:block;color:var(--text);margin-bottom:4px}.asset-empty p{margin:0;font-size:.85rem}.asset-empty[hidden]{display:none}
+    .asset-summary{display:grid;grid-template-columns:1.3fr .7fr;gap:18px;margin:18px 0}.asset-title{display:flex;align-items:flex-start;gap:12px}.ticker-badge{min-width:48px;padding:8px 10px;text-align:center;border-radius:10px;background:var(--green-dark);color:var(--green);font-weight:800;font-size:.76rem}.asset-title h3{margin:0;font-size:1.24rem;letter-spacing:-.025em}.asset-title p{margin:3px 0 0;color:var(--muted);font-size:.79rem}.price-block{text-align:right}.price-label{font-size:.72rem;color:var(--muted)}.price{font-size:1.55rem;font-weight:800;letter-spacing:-.04em}.change{font-size:.78rem;font-weight:700}.positive{color:var(--green)}.negative{color:var(--red)}.neutral{color:var(--amber)}
+    .chart-layout{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(230px,.75fr);gap:16px}.chart-panel{padding:16px 17px;min-height:310px}.chart-top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}.chart-top h4{margin:0;font-size:.9rem}.performance{font-size:.78rem;font-weight:800}.chart-box{height:235px;position:relative}.chart-box canvas{width:100%!important;height:100%!important}.chart-empty{position:absolute;inset:0;display:grid;place-items:center;text-align:center;color:var(--muted);font-size:.84rem}.chart-empty[hidden]{display:none}
+    .indicators{display:grid;grid-template-columns:1fr 1fr;gap:10px}.indicator{padding:15px 14px;background:var(--panel2);border:1px solid var(--line);border-radius:13px;min-height:92px}.indicator span{display:block;color:var(--muted);font-size:.71rem}.indicator strong{display:block;margin-top:7px;font-size:1.04rem}.indicator small{font-size:.72rem;color:var(--muted)}.comment{margin-top:15px;padding:15px 16px;border-left:2px solid #42647c;background:#0d1725;border-radius:0 12px 12px 0}.comment-title{font-size:.74rem;font-weight:800;color:#c6d3e2}.comment p{margin:6px 0 0;color:#b3c0d0;font-size:.82rem}.fineprint{color:var(--muted);font-size:.73rem;margin:11px 0 0}
+    .simulator{padding:22px}.sim-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 24px}.control{padding:12px 0}.control-head{display:flex;justify-content:space-between;gap:12px;font-size:.82rem}.control-head label{color:#c6d1df}.control output{font-weight:800;color:var(--green)}input[type=range]{width:100%;accent-color:var(--green);margin:15px 0 0}.bounds{display:flex;justify-content:space-between;color:#78899f;font-size:.68rem}.results{margin-top:15px;padding-top:17px;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.result{padding:14px;background:#0c1421;border-radius:12px}.result span{display:block;color:var(--muted);font-size:.72rem}.result strong{display:block;margin-top:5px;font-size:1.15rem;letter-spacing:-.03em}.result.emphasis{border:1px solid #1b765c}.result.emphasis strong{color:var(--green)}.sim-note{margin:13px 0 0;color:var(--muted);font-size:.74rem}
+    .partner{display:grid;grid-template-columns:1fr auto;align-items:center;gap:25px;padding:24px;background:#0d1c1b;border:1px solid #235746;border-radius:var(--radius)}.partner h2{font-size:1.35rem;letter-spacing:-.03em;margin:5px 0}.partner p{max-width:660px;margin:0;color:#bdc9d2;font-size:.86rem}.partner .subnote{margin-top:9px;font-size:.72rem;color:#9badb2}.cta{display:inline-flex;justify-content:center;align-items:center;min-height:46px;padding:0 18px;background:var(--green);color:#062016;text-decoration:none;font-weight:800;font-size:.83rem;border-radius:11px;white-space:nowrap}.cta:hover{filter:brightness(1.07)}.cta[aria-disabled="true"]{background:#394858;color:#c4ced8;cursor:not-allowed;filter:none}.partner-status{margin-top:6px;text-align:center;color:#9badb2;font-size:.69rem}
+    footer{border-top:1px solid var(--line);margin-top:36px;padding:22px 0 30px;color:#8998ac;font-size:.75rem}.footer-row{display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap}.footer-row p{margin:0;max-width:720px}
+    @media(max-width:760px){.wrap{width:min(100% - 24px,620px)}.nav{min-height:62px}.navlinks{gap:12px}.navlinks a{font-size:.75rem}.hero{grid-template-columns:1fr;padding:42px 0 24px;gap:18px}.hero h1{font-size:clamp(2.3rem,12vw,3.5rem)}.hero-note{max-width:540px}.section{padding:22px 0}.section-heading{align-items:flex-start;flex-direction:column;gap:5px}.radar{padding:15px}.radar-head{flex-direction:column}.status{text-align:left}.asset-summary{grid-template-columns:1fr}.price-block{text-align:left}.chart-layout{grid-template-columns:1fr}.chart-panel{min-height:290px}.chart-box{height:215px}.simulator{padding:16px}.sim-grid{grid-template-columns:1fr;gap:0}.results{grid-template-columns:1fr}.partner{grid-template-columns:1fr}.partner .cta-wrap{justify-self:stretch}.cta{width:100%}.partner-status{text-align:left}.footer-row{flex-direction:column}}
+    @media(max-width:410px){.navlinks{gap:8px}.navlinks a{font-size:.68rem}.brand-name{font-size:.87rem}.ticker-badge{min-width:42px}.asset-title h3{font-size:1.08rem}.price{font-size:1.38rem}}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
+  </style>
+  <style id="modern-theme">
+    :root{color-scheme:light;--bg:#f3f6f1;--panel:#ffffff;--panel2:#f6f8f5;--line:#dfe7df;--muted:#66766c;--text:#17251d;--green:#c9ed72;--green-dark:#eaf3d8;--red:#b94f50;--amber:#94631b;--radius:20px}
+    body{background:var(--bg);color:var(--text)}
+    .topbar{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.94);border-bottom:1px solid #e4ebe4;backdrop-filter:blur(14px)}
+    .nav{min-height:76px}.brand{color:#17392d}.brand-mark{background:#173f32;color:#d8f28a;border-radius:12px;box-shadow:0 5px 14px rgba(20,62,48,.16)}
+    .navlinks a{color:#607166}.navlinks a:hover{color:#137457}
+    .hero{position:relative;overflow:hidden;margin:34px auto 22px;padding:clamp(28px,5vw,54px);border:1px solid #244b3d;border-radius:28px;background:#12382e;color:#f4f7f2;box-shadow:0 20px 44px rgba(17,54,42,.13)}
+    .hero::after{content:"";position:absolute;right:-64px;top:-110px;width:300px;height:300px;border:1px solid rgba(221,241,174,.14);border-radius:50%;box-shadow:0 0 0 34px rgba(221,241,174,.035),0 0 0 68px rgba(221,241,174,.025);pointer-events:none}
+    .hero>*{position:relative;z-index:1}.hero .eyebrow{color:#d7f28b}.hero h1{color:#f7f9f6}.hero p{color:#c2d1c7}.hero-note{border-left-color:#d3ee7f;color:#cfdbd2}.hero-note strong{color:#fff}
+    .eyebrow{color:#167254}.section{padding:27px 0}.section-heading h2{color:#17251d}.section-heading p{color:#718075}
+    .panel{background:var(--panel);border:1px solid #e0e8e0;border-radius:var(--radius);box-shadow:0 10px 30px rgba(33,58,43,.055)}
+    .radar{padding:clamp(16px,3vw,26px)}.radar-head h3{color:#1b3025}.radar-head p,.status{color:#708075}.status strong{color:#147354}
+    .notice{background:#eef4e8;color:#33493a;border:1px solid #dce9d2}.asset-empty{background:#fbfcfa;border-color:#cbd8cb;color:#647468}.asset-empty strong{color:#1a2d22}
+    .chip{background:#f6f8f5;border-color:#dce5dc;color:#526358;border-radius:11px}.chip:hover{background:#edf3eb;border-color:#a6bba8;color:#1b3d2d}.chip[aria-pressed="true"]{background:#174b39;color:#eef7dc;border-color:#174b39;box-shadow:0 5px 13px rgba(23,75,57,.15)}
+    .range-chip{background:transparent;border-color:transparent}.range-chip[aria-pressed="true"]{background:#eaf3d8;color:#174b39;border-color:#d9e9bd;box-shadow:none}
+    .asset-summary{padding:18px 0 15px;border-bottom:1px solid #edf1ed}.ticker-badge{background:#eaf3d8;color:#176447;border:1px solid #dcebc2}.asset-title h3{color:#1c3025}.asset-title p,.price-label{color:#77867b}.price{color:#14281d}.change.positive,.positive{color:#137653!important}.change.negative,.negative{color:#b7484d!important}.neutral{color:#956414!important}
+    .chart-panel{background:#fff;border-color:#e5ebe5;box-shadow:none}.chart-top h4{color:#24372b}.chart-empty{color:#718075}.indicators{gap:11px}.indicator{background:#f7f9f6;border-color:#e5ebe4;border-radius:15px}.indicator span,.indicator small{color:#748278}.indicator strong{color:#1a3024}.comment{background:#f2f6ec;border-left-color:#278565;border-radius:0 13px 13px 0}.comment-title{color:#294634}.comment p{color:#536457}.fineprint{color:#78867c}
+    .simulator{padding:clamp(17px,3vw,27px)}.control-head label{color:#42564a}.control output{color:#167254}input[type=range]{accent-color:#177553}.bounds{color:#819087}.results{border-color:#e6ece5}.result{background:#f7f9f6;border:1px solid #edf1ec}.result span{color:#738177}.result strong{color:#1c3025}.result.emphasis{background:#f0f6e7;border-color:#dcebc2}.result.emphasis strong{color:#145f44}.sim-note{color:#718075}
+    .partner{background:#153d31;border:1px solid #275b48;box-shadow:0 15px 34px rgba(20,61,48,.12);color:#f5f8f3}.partner .eyebrow{color:#d6f08a}.partner h2{color:#fff}.partner p{color:#d3dfd6}.partner .subnote{color:#b8cbbd}.cta{background:#d6f080;color:#173728;border-radius:12px;box-shadow:0 8px 18px rgba(6,26,18,.16)}.cta:hover{filter:brightness(1.04);transform:translateY(-1px)}.cta[aria-disabled="true"]{background:#52665b;color:#d7e0d9;box-shadow:none}.partner-status{color:#c0d0c5}
+    footer{border-color:#dfe7df;color:#728075}.footer-row p{color:#728075}
+    @media(max-width:760px){.hero{margin-top:20px;border-radius:22px;padding:28px 22px}.hero::after{right:-165px;top:-125px}.radar-head{gap:10px}.partner{border-radius:18px}}
+    @media(prefers-reduced-motion:no-preference){.cta{transition:transform .16s ease,filter .16s ease}.chip{transition:background .15s ease,border-color .15s ease,color .15s ease}}
+  </style>
+  <style id="premium-theme">
+    :root{color-scheme:dark;--bg:#090b10;--panel:#121720;--panel2:#171e28;--line:#29313d;--muted:#9aa4b1;--text:#edf0f3;--green:#d7b56d;--green-dark:#302817;--red:#e47772;--amber:#d6b66c;--radius:16px}
+    body{background:#090b10;color:#edf0f3}
+    .wrap{width:min(1240px,calc(100% - 32px))}
+    .topbar{position:sticky;top:0;z-index:10;background:rgba(9,11,16,.96);border-bottom:1px solid #252b35;backdrop-filter:blur(12px)}
+    .nav{min-height:64px}.brand{color:#f0eee8}.brand-mark{background:#d7b56d;color:#17140d;border-radius:9px;box-shadow:none}.navlinks a{color:#a9b0ba}.navlinks a:hover{color:#e3c47d}
+    .hero{position:relative;overflow:hidden;margin:22px auto 12px;padding:clamp(24px,4vw,38px);border:1px solid #34302a;border-left:3px solid #d7b56d;border-radius:16px;background:#11151c;color:#f1f1ee;box-shadow:none}
+    .hero::after{content:"";position:absolute;right:-92px;top:-160px;width:350px;height:350px;border:1px solid rgba(215,181,109,.17);border-radius:50%;box-shadow:0 0 0 42px rgba(215,181,109,.035),0 0 0 84px rgba(215,181,109,.025);pointer-events:none}
+    .hero>*{position:relative;z-index:1}.hero .eyebrow{color:#d7b56d}.hero h1{color:#f3f2ef}.hero h1 span{color:#e0c47f!important}.hero p{color:#aeb5bf}.hero-note{border-left-color:#d7b56d;color:#b7bec7}.hero-note strong{color:#f5f2eb}
+    .eyebrow{color:#c6a65f}.section{padding:17px 0}.section-heading{margin-bottom:11px}.section-heading h2{color:#eceeeF;font-size:1.35rem}.section-heading p{color:#99a3b0}
+    .panel{background:#121720;border:1px solid #29313d;border-radius:16px;box-shadow:none}.radar{padding:clamp(14px,2vw,20px)}.radar-head{margin-bottom:12px}.radar-head h3{color:#e8e9e7}.radar-head p,.status{color:#9ca6b2}.status strong{color:#e0c47f}
+    .notice{background:#1a1e25;color:#c9cdd3;border:1px solid #343941}.asset-empty{background:#11161d;border-color:#3a414c;color:#aab1bc}.asset-empty strong{color:#f0f0ed}
+    .chip{background:#151b23;border-color:#303844;color:#b7bec8;border-radius:8px}.chip:hover{background:#202630;border-color:#74613a;color:#f3ead5}.chip[aria-pressed="true"]{background:#d7b56d;color:#17140d;border-color:#d7b56d;box-shadow:0 3px 10px rgba(215,181,109,.12)}
+    .range-list{gap:5px;margin:11px 0}.range-chip{padding:5px 9px;background:transparent;border-color:transparent}.range-chip[aria-pressed="true"]{background:#302817;color:#e3c47d;border-color:#55472d;box-shadow:none}
+    .asset-summary{padding:12px 0 11px;margin:10px 0;border-bottom:1px solid #252d37}.ticker-badge{background:#302817;color:#e3c47d;border:1px solid #55472d;border-radius:8px}.asset-title h3{color:#eceeeF}.asset-title p,.price-label{color:#99a3b0}.price{color:#f4f3ef}.change.positive,.positive{color:#e0bd70!important}.change.negative,.negative{color:#e47772!important}.neutral{color:#d6b66c!important}
+    .chart-layout{gap:12px}.chart-panel{background:#10151c;border-color:#29313d;box-shadow:none;padding:13px;min-height:275px}.chart-top h4{color:#e7e9e7}.chart-box{height:205px}.chart-empty{color:#9ba5b1}
+    .indicators{gap:8px}.indicator{background:#171e28;border-color:#2b3440;border-radius:11px;min-height:82px;padding:12px}.indicator span,.indicator small{color:#9ca6b2}.indicator strong{color:#eceeeF;font-size:.98rem}.comment{margin-top:10px;background:#171a1f;border-left-color:#c6a65f;border-radius:0 10px 10px 0;padding:12px}.comment-title{color:#ddc584}.comment p{color:#b6bdc5}.fineprint{color:#8d98a6;margin-top:9px}
+    .simulator{padding:clamp(14px,2vw,20px)}.sim-grid{gap:8px 22px}.control{padding:8px 0}.control-head label{color:#c2c7ce}.control output{color:#e0bd70}input[type=range]{accent-color:#d7b56d;margin:12px 0 0}.bounds{color:#8993a0}.results{margin-top:10px;padding-top:12px;border-color:#29313d;gap:8px}.result{padding:11px;background:#171e28;border:1px solid #29313d;border-radius:10px}.result span{color:#9ba5b1}.result strong{color:#e9eae7;font-size:1.05rem}.result.emphasis{background:#211e18;border-color:#5b4c2e}.result.emphasis strong{color:#e3c47d}.sim-note{color:#9ba5b1;margin-top:10px}
+    .partner{padding:19px;background:#141820;border:1px solid #54482f;box-shadow:none;border-radius:16px;color:#eee}.partner .eyebrow{color:#d7b56d}.partner h2{color:#f2f0ea}.partner p{color:#bbc1c8}.partner .subnote{color:#989fa8}.cta{background:#d7b56d;color:#17140d;border-radius:9px;box-shadow:none}.cta:hover{filter:brightness(1.07);transform:translateY(-1px)}.cta[aria-disabled="true"]{background:#41444a;color:#c4c7cb}.partner-status{color:#9ca4ad}
+    footer{border-color:#252c36;color:#939da9;margin-top:24px;padding:18px 0 24px}.footer-row p{color:#939da9}
+    @media(max-width:760px){.wrap{width:min(100% - 24px,620px)}.hero{margin-top:14px;padding:23px 18px;border-radius:13px}.hero::after{right:-190px;top:-145px}.section{padding:14px 0}.section-heading h2{font-size:1.25rem}.radar-head{gap:8px}.partner{padding:18px;border-radius:13px}.chart-panel{min-height:250px}.chart-box{height:190px}}
+    @media(max-width:410px){.navlinks{gap:8px}.navlinks a{font-size:.68rem}.brand-name{font-size:.87rem}}
+  </style>
 </head>
-<body class="bg-darkbg text-slate-100 font-sans min-h-screen flex flex-col justify-between selection:bg-accent selection:text-black">
+<body>
+  <header class="topbar">
+    <div class="wrap nav">
+      <a class="brand" href="#top" aria-label="Jahdo Startseite"><span class="brand-mark" aria-hidden="true">J</span><span class="brand-name">JAHDO <span style="color:var(--muted);font-weight:600">MARKETS</span></span></a>
+      <nav class="navlinks" aria-label="Hauptnavigation"><a href="#analysen">Analysen</a><a href="#rechner">Simulator</a><a href="#partner">Angebot</a></nav>
+    </div>
+  </header>
+  <main id="top" class="wrap">
+    <section class="hero" aria-labelledby="hero-title">
+      <div><div class="eyebrow">Automatisierte Marktübersicht</div><h1 id="hero-title">Marktdaten klar sehen.<br><span style="color:var(--green)">Annahmen klar verstehen.</span></h1><p>Technische Kennzahlen und historische Kursverläufe für ausgewählte Basiswerte – ergänzt durch einen transparenten Sparplan-Simulator.</p></div>
+      <aside class="hero-note"><strong>Kein Echtzeitversprechen</strong>Die Analysen werden aus dem bereitgestellten Datensatz geladen. Datenstand und Verfügbarkeit hängen von dessen Aktualisierung ab.</aside>
+    </section>
 
-    <!-- Header -->
-    <header class="border-b border-slate-800/80 bg-cardbg/70 backdrop-blur-md sticky top-0 z-50">
-        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-            <div class="flex items-center space-x-3">
-                <div class="w-3 h-3 rounded-full bg-accent animate-pulse"></div>
-                <span class="text-2xl font-black tracking-wider text-white">JAHDO</span>
-                <span class="text-xs bg-accent/15 text-accent border border-accent/30 px-2.5 py-0.5 rounded-full font-medium">AI Finance</span>
-            </div>
-            <nav class="hidden md:flex space-x-8 text-sm font-medium text-slate-300">
-                <a href="#analysen" class="hover:text-accent transition">Tages-Analysen</a>
-                <a href="#rechner" class="hover:text-accent transition">Sparplan-Rechner</a>
-            </nav>
+    <section id="analysen" class="section" aria-labelledby="analysis-title">
+      <div class="section-heading"><div><div class="eyebrow">Marktübersicht</div><h2 id="analysis-title">Asset-Radar</h2></div><p>Basiswert und Zeitraum auswählen</p></div>
+      <div class="panel radar">
+        <div class="radar-head"><div><h3>Ausgewählte Analysen</h3><p>Indikatoren sind beschreibend und keine Kauf- oder Verkaufssignale.</p></div><div class="status" role="status" aria-live="polite">Datenstand: <strong id="last-updated">Lade…</strong></div></div>
+        <p id="data-alert" class="notice" role="status" aria-live="polite" hidden></p>
+        <div id="ticker-buttons" class="asset-list" role="group" aria-label="Basiswert auswählen"></div>
+        <div id="asset-empty" class="asset-empty" hidden><strong>Keine Analysedaten verfügbar</strong><p>Prüfe, ob <code>data/latest_analysis.json</code> veröffentlicht wurde, und lade die Daten erneut.</p><button id="retry-data" class="chip" type="button" style="margin-top:12px">Erneut laden</button></div>
+        <div id="asset-content" hidden>
+          <div class="asset-summary"><div class="asset-title"><span id="stock-ticker" class="ticker-badge">—</span><div><h3 id="stock-name">—</h3><p id="stock-meta">Kursdaten aus dem Analyse-Datensatz</p></div></div><div class="price-block"><div class="price-label">Letzter verfügbarer Kurs</div><div id="stock-price" class="price">—</div><div id="stock-change" class="change">—</div></div></div>
+          <div id="range-buttons" class="range-list" role="group" aria-label="Analysezeitraum"></div>
+          <div class="chart-layout">
+            <div class="panel chart-panel"><div class="chart-top"><h4>Kursverlauf</h4><span id="range-perf" class="performance" aria-live="polite">—</span></div><div class="chart-box"><canvas id="priceChart" role="img" aria-label="Historischer Kursverlauf"></canvas><div id="chart-empty" class="chart-empty" hidden>Für diesen Zeitraum liegen keine ausreichenden Chartdaten vor.</div></div></div>
+            <div><div class="indicators" aria-label="Technische Kennzahlen"><div class="indicator"><span>RSI · 14 Perioden</span><strong id="ind-rsi">—</strong><small id="rsi-note">Beschreibender Indikator</small></div><div class="indicator"><span>Trendstatus</span><strong id="ind-trend">—</strong><small id="badge-trend">—</small></div><div class="indicator"><span>SMA · 50 Tage</span><strong id="ind-sma50">—</strong><small>Mittelfristiger Durchschnitt</small></div><div class="indicator"><span>SMA · 200 Tage</span><strong id="ind-sma200">—</strong><small>Langfristiger Durchschnitt</small></div></div><div class="comment"><div class="comment-title">Automatisierte Markteinordnung</div><p id="ai-commentary">Für diesen Basiswert liegt derzeit kein Kommentar vor.</p></div></div>
+          </div>
         </div>
-    </header>
+        <p class="fineprint">Daten können verzögert, unvollständig oder fehlerhaft sein. Prüfe Zeitstempel und Quelle, bevor du daraus Schlüsse ziehst.</p>
+      </div>
+    </section>
 
-    <!-- Main -->
-    <main class="max-w-6xl mx-auto px-4 py-8 flex-grow w-full space-y-14">
+    <section id="rechner" class="section" aria-labelledby="sim-title">
+      <div class="section-heading"><div><div class="eyebrow">Planungshilfe</div><h2 id="sim-title">Sparplan-Simulator</h2></div><p>Rechenbeispiel, keine Renditeprognose</p></div>
+      <div class="panel simulator">
+        <div class="sim-grid">
+          <div class="control"><div class="control-head"><label for="start-kapital">Startkapital</label><output id="val-start" for="start-kapital">1.000 €</output></div><input type="range" id="start-kapital" min="0" max="50000" step="250" value="1000"><div class="bounds"><span>0 €</span><span>50.000 €</span></div></div>
+          <div class="control"><div class="control-head"><label for="spar-rate">Monatliche Sparrate</label><output id="val-rate" for="spar-rate">100 €</output></div><input type="range" id="spar-rate" min="0" max="2000" step="25" value="100"><div class="bounds"><span>0 €</span><span>2.000 €</span></div></div>
+          <div class="control"><div class="control-head"><label for="jahre">Anlagehorizont</label><output id="val-jahre" for="jahre">15 Jahre</output></div><input type="range" id="jahre" min="1" max="40" step="1" value="15"><div class="bounds"><span>1 Jahr</span><span>40 Jahre</span></div></div>
+          <div class="control"><div class="control-head"><label for="rendite">Angenommene Rendite pro Jahr</label><output id="val-rendite" for="rendite">7,0 %</output></div><input type="range" id="rendite" min="-20" max="20" step="0.5" value="7"><div class="bounds"><span>−20 %</span><span>+20 %</span></div></div>
+        </div>
+        <div class="results" aria-live="polite"><div class="result"><span>Eigene Einzahlungen</span><strong id="res-einzahlung">—</strong></div><div class="result"><span>Wertzuwachs / Verlust</span><strong id="res-differenz">—</strong></div><div class="result emphasis"><span>Projizierter Endwert</span><strong id="res-endwert">—</strong></div></div>
+        <p class="sim-note">Annahme: konstante effektive Jahresrendite, monatliche Verzinsung und Einzahlung jeweils am Monatsende. Steuern, Gebühren und Inflation sind nicht berücksichtigt. Tatsächliche Renditen schwanken; ein Verlust ist möglich.</p>
+      </div>
+    </section>
 
-        <!-- Hero -->
-        <section class="text-center space-y-4 py-6">
-            <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight">
-                Tägliche Markt-Daten. <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">KI-gestützt analysiert.</span>
-            </h1>
-            <p class="text-slate-400 max-w-2xl mx-auto text-base md:text-lg">
-                Automatische technische Indikatoren für Top-Aktien & den FTSE All-World ETF – kombiniert mit klaren Sparplan-Werkzeugen.
-            </p>
-        </section>
+    <section id="partner" class="section" aria-labelledby="partner-title">
+      <div class="partner"><div><div class="eyebrow">Werbung / Affiliate</div><h2 id="partner-title">Angebote transparent vergleichen</h2><p>Konditionen und Teilnahmebedingungen können sich ändern. Prüfe sie direkt beim Anbieter, bevor du ein Angebot nutzt.</p><p class="subnote">Für qualifizierte Partnerlinks kann Jahdo eine Provision erhalten. Die Kennzeichnung bleibt auch am Link sichtbar.</p></div><div class="cta-wrap"><a id="affiliate-link" class="cta" href="#partner" aria-disabled="true">Partnerlink nicht eingerichtet</a><div id="partner-status" class="partner-status" role="status">Vor Veröffentlichung eine geprüfte HTTPS-Partner-URL konfigurieren.</div></div></div>
+    </section>
+  </main>
+  <footer><div class="wrap footer-row"><p>JAHDO · Automatisierte Finanz- und Marktübersicht. Keine Anlageberatung. Technische Kennzahlen und Simulationen sind keine Zusicherung künftiger Ergebnisse.</p><p>© <span id="year"></span> Jahdo · Werbung/Affiliate-Links sind gekennzeichnet.</p></div></footer>
 
-        <!-- Sektion: Dynamische Aktien- & ETF-Analyse -->
-        <section id="analysen" class="space-y-4">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                <div id="ticker-buttons" class="flex flex-wrap gap-2">
-                    <!-- Buttons werden per JS generiert -->
-                </div>
-                <span class="text-xs text-slate-400">Stand: <span id="last-updated">Lade Daten...</span></span>
-            </div>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <script>
+    'use strict';
+    // Vor Livegang: nur eine verifizierte HTTPS-URL des Partnerprogramms einsetzen.
+    const CONFIG = {
+      dataUrl: 'data/latest_analysis.json',
+      affiliateUrl: ''
+    };
+    const RANGES = [
+      { key: '7d', label: '7T' }, { key: '1m', label: '1M' },
+      { key: '3m', label: '3M' }, { key: '6m', label: '6M' },
+      { key: '1y', label: '1J' }, { key: '2y', label: '2J' },
+      { key: 'max', label: 'MAX' }
+    ];
+    const state = { assets: [], selectedIndex: -1, range: '1m', chart: null };
+    const $ = (id) => document.getElementById(id);
+    const asFiniteNumber = (value) => {
+      if (value === null || value === undefined || value === '') return null;
+      const number = Number(value);
+      return Number.isFinite(number) ? number : null;
+    };
+    const setText = (id, value) => { $(id).textContent = value == null ? '—' : String(value); };
+    const formatPrice = (value, currency) => {
+      const n = asFiniteNumber(value);
+      if (n === null) return 'Nicht verfügbar';
+      const formatted = new Intl.NumberFormat('de-DE', { maximumSignificantDigits: 8 }).format(n);
+      return `${formatted} ${currency || ''}`.trim();
+    };
+    const formatEuro = (value) => new Intl.NumberFormat('de-DE', {
+      style: 'currency', currency: 'EUR', maximumFractionDigits: 0
+    }).format(value);
 
-            <div class="bg-cardbg/90 border border-slate-800 rounded-2xl p-6 md:p-8 shadow-2xl space-y-6">
-                <!-- Kopfzeile der Aktie -->
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center pb-6 border-b border-slate-800 gap-4">
-                    <div>
-                        <span id="stock-ticker" class="text-xs uppercase tracking-widest text-accent font-bold">VWCE.DE</span>
-                        <h2 id="stock-name" class="text-2xl md:text-3xl font-bold mt-0.5">Vanguard FTSE All-World ETF</h2>
-                    </div>
-                    <div class="text-left md:text-right">
-                        <div id="stock-price" class="text-2xl md:text-3xl font-black">--</div>
-                        <div id="stock-change" class="text-sm font-semibold mt-0.5">--</div>
-                    </div>
-                </div>
-
-                <!-- Chart & Kennzahlen Grid -->
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
-                    <!-- Chart (30 Tage) -->
-                    <div class="lg:col-span-2 bg-slate-900/60 p-4 rounded-xl border border-slate-800/80 h-64">
-                        <canvas id="priceChart"></canvas>
-                    </div>
-
-                    <!-- 4er Indikatoren Box -->
-                    <div class="grid grid-cols-2 gap-3">
-                        <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800/80">
-                            <div class="text-xs text-slate-400">RSI (14 Tage)</div>
-                            <div id="ind-rsi" class="text-lg font-bold mt-1">--</div>
-                        </div>
-                        <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800/80">
-                            <div class="text-xs text-slate-400">SMA 50</div>
-                            <div id="ind-sma50" class="text-lg font-bold mt-1">--</div>
-                        </div>
-                        <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800/80">
-                            <div class="text-xs text-slate-400">SMA 200</div>
-                            <div id="ind-sma200" class="text-lg font-bold mt-1">--</div>
-                        </div>
-                        <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800/80">
-                            <div class="text-xs text-slate-400">Trend / KGV</div>
-                            <div id="ind-trend" class="text-lg font-bold mt-1">--</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- KI-Fazit -->
-                <div class="bg-gradient-to-r from-emerald-950/40 to-slate-900/80 border-l-4 border-accent p-5 rounded-r-xl space-y-2">
-                    <div class="flex items-center space-x-2">
-                        <span class="text-xs font-bold text-accent uppercase tracking-wider">Tägliches KI-Fazit</span>
-                    </div>
-                    <p id="ai-commentary" class="text-slate-200 text-sm md:text-base leading-relaxed">
-                        Lade aktuelle Analyse...
-                    </p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Sektion: Interaktiver Sparplan-Rechner -->
-        <section id="rechner" class="bg-cardbg/90 border border-slate-800 rounded-2xl p-6 md:p-8 shadow-2xl space-y-6">
-            <div class="border-b border-slate-800 pb-4">
-                <h2 class="text-2xl font-bold">ETF-Sparplan & Zinseszins-Rechner</h2>
-                <p class="text-slate-400 text-sm mt-1">Simuliere deinen langfristigen Vermögensaufbau bei monatlicher Besparung.</p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1">Startkapital (€)</label>
-                        <input type="number" id="start-kapital" value="1000" min="0" step="100" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white font-semibold focus:outline-none focus:border-accent">
-                    </div>
-                    <div>
-                        <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1">Monatliche Sparrate (€)</label>
-                        <input type="number" id="spar-rate" value="100" min="0" step="25" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white font-semibold focus:outline-none focus:border-accent">
-                    </div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1">Dauer (Jahre)</label>
-                            <input type="number" id="jahre" value="15" min="1" max="50" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white font-semibold focus:outline-none focus:border-accent">
-                        </div>
-                        <div>
-                            <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1">Rendite p.a. (%)</label>
-                            <input type="number" id="rendite" value="7.0" step="0.5" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white font-semibold focus:outline-none focus:border-accent">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="md:col-span-2 bg-slate-900/70 border border-slate-800 rounded-xl p-6 flex flex-col justify-between space-y-6">
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div class="p-4 rounded-lg bg-slate-950/60 border border-slate-800/60">
-                            <div class="text-xs text-slate-400">Eigene Einzahlungen</div>
-                            <div id="res-einzahlung" class="text-xl font-bold mt-1 text-slate-200">--</div>
-                        </div>
-                        <div class="p-4 rounded-lg bg-slate-950/60 border border-slate-800/60">
-                            <div class="text-xs text-slate-400">Zinserträge / Gewinn</div>
-                            <div id="res-zinsen" class="text-xl font-bold mt-1 text-emerald-400">--</div>
-                        </div>
-                        <div class="p-4 rounded-lg bg-emerald-950/30 border border-accent/40">
-                            <div class="text-xs text-accent font-semibold">Voraussichtlicher Endwert</div>
-                            <div id="res-endwert" class="text-2xl font-black mt-1 text-white">--</div>
-                        </div>
-                    </div>
-
-                    <!-- Visueller Fortschrittsbalken Einzahlung vs. Zinsen -->
-                    <div class="space-y-2">
-                        <div class="flex justify-between text-xs text-slate-400">
-                            <span id="bar-label-einzahlung">Einzahlungen (60%)</span>
-                            <span id="bar-label-zinsen" class="text-accent">Zinseszins-Anteil (40%)</span>
-                        </div>
-                        <div class="w-full h-3 bg-slate-800 rounded-full overflow-hidden flex">
-                            <div id="bar-einzahlung" class="bg-slate-500 h-full transition-all duration-300" style="width: 60%"></div>
-                            <div id="bar-zinsen" class="bg-accent h-full transition-all duration-300" style="width: 40%"></div>
-                        </div>
-                    </div>
-
-                    <p class="text-xs text-slate-500">
-                        *Hinweis: Keine Anlageberatung. Alle Angaben dienen ausschließlich Informationszwecken.
-                    </p>
-                </div>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- Footer -->
-    <footer class="border-t border-slate-800/80 bg-cardbg/40 mt-12 py-6 text-center text-xs text-slate-500">
-        <p>&copy; 2026 Jahdo. Automatisiertes Finanz- & Analyse-Portal.</p>
-    </footer>
-
-    <!-- Logik für Datenabruf, Chart & Sparplan-Rechner -->
-    <script>
-        let allStocks = [];
-        let chartInstance = null;
-
-        //Fallback-Daten, falls die JSON beim allerersten Start noch leer ist
-        const fallbackData = {
-            last_updated: "Heute (Demo-Daten)",
-            stocks: [{
-                ticker: "VWCE.DE",
-                name: "Vanguard FTSE All-World ETF",
-                currency: "EUR",
-                price: 132.40,
-                change_pct: 0.65,
-                pe_ratio: "–",
-                trend: "Bullish",
-                indicators: { rsi: 58.4, sma_50: 129.10, sma_200: 121.80 },
-                chart: {
-                    labels: ["-5T", "-4T", "-3T", "-2T", "Gestern", "Heute"],
-                    prices: [129.5, 130.1, 129.8, 131.0, 131.5, 132.4]
-                },
-                ai_commentary: "Der Vanguard FTSE All-World ETF zeigt einen intakten Aufwärtstrend und notiert stabil über seinem 50- und 200-Tage-Durchschnitt. Mit einem RSI von 58,4 ist der Markt weder überhitzt noch überverkauft, was eine solide Basis für laufende monatliche Sparpläne darstellt."
-            }]
-        };
-
-        async function loadStockData() {
-            try {
-                const res = await fetch('data/latest_analysis.json?t=' + new Date().getTime());
-                if (!res.ok) throw new Error("JSON nicht gefunden");
-                const data = await res.json();
-                if (!data.stocks || data.stocks.length === 0) throw new Error("JSON noch leer");
-                
-                document.getElementById('last-updated').innerText = data.last_updated;
-                allStocks = data.stocks;
-            } catch (e) {
-                document.getElementById('last-updated').innerText = fallbackData.last_updated;
-                allStocks = fallbackData.stocks;
-            }
-            renderButtons();
-            selectStock(0);
+    function normalizeAsset(raw) {
+      if (!raw || typeof raw !== 'object') return null;
+      const ticker = typeof raw.ticker === 'string' ? raw.ticker.trim() : '';
+      const name = typeof raw.name === 'string' ? raw.name.trim() : '';
+      if (!ticker || !name) return null;
+      const rawIndicators = raw.indicators && typeof raw.indicators === 'object' ? raw.indicators : {};
+      const normalizedCharts = {};
+      if (raw.charts && typeof raw.charts === 'object') {
+        for (const [key, range] of Object.entries(raw.charts)) {
+          if (!range || !Array.isArray(range.labels) || !Array.isArray(range.prices)) continue;
+          const length = Math.min(range.labels.length, range.prices.length);
+          const labels = [], prices = [];
+          for (let i = 0; i < length; i++) {
+            const price = asFiniteNumber(range.prices[i]);
+            if (price === null) continue;
+            labels.push(String(range.labels[i] ?? ''));
+            prices.push(price);
+          }
+          if (prices.length) normalizedCharts[key] = { labels, prices };
         }
-
-        function renderButtons() {
-            const container = document.getElementById('ticker-buttons');
-            container.innerHTML = '';
-            allStocks.forEach((s, idx) => {
-                const btn = document.createElement('button');
-                btn.id = `btn-stock-${idx}`;
-                btn.className = "px-4 py-2 rounded-xl text-sm font-bold border transition";
-                btn.innerText = s.ticker;
-                btn.onclick = () => selectStock(idx);
-                container.appendChild(btn);
-            });
+      }
+      if (!normalizedCharts['1m'] && raw.chart && Array.isArray(raw.chart.labels) && Array.isArray(raw.chart.prices)) {
+        const length = Math.min(raw.chart.labels.length, raw.chart.prices.length);
+        const labels = [], prices = [];
+        for (let i = 0; i < length; i++) {
+          const price = asFiniteNumber(raw.chart.prices[i]);
+          if (price !== null) { labels.push(String(raw.chart.labels[i] ?? '')); prices.push(price); }
         }
+        if (prices.length) normalizedCharts['1m'] = { labels, prices };
+      }
+      return {
+        ticker, name,
+        currency: typeof raw.currency === 'string' ? raw.currency.trim().toUpperCase() : '',
+        price: asFiniteNumber(raw.price),
+        changePct: asFiniteNumber(raw.change_pct),
+        trend: ['Bullish', 'Bearish', 'Neutral'].includes(raw.trend) ? raw.trend : null,
+        indicators: {
+          rsi: asFiniteNumber(rawIndicators.rsi),
+          sma50: asFiniteNumber(rawIndicators.sma_50),
+          sma200: asFiniteNumber(rawIndicators.sma_200)
+        },
+        charts: normalizedCharts,
+        commentary: typeof raw.ai_commentary === 'string' ? raw.ai_commentary : ''
+      };
+    }
 
-        function selectStock(index) {
-            const s = allStocks[index];
-            if (!s) return;
+    function showDataError(message) {
+      $('data-alert').textContent = message;
+      $('data-alert').hidden = false;
+      $('asset-empty').hidden = false;
+      $('asset-content').hidden = true;
+      $('ticker-buttons').replaceChildren();
+      setText('last-updated', 'nicht verfügbar');
+      clearChart('Keine Analysedaten geladen.');
+    }
 
-            // Button-Highlighting aktualisieren
-            allStocks.forEach((_, idx) => {
-                const btn = document.getElementById(`btn-stock-${idx}`);
-                if (idx === index) {
-                    btn.className = "px-4 py-2 rounded-xl text-sm font-bold bg-accent text-slate-950 border border-accent shadow-lg shadow-accent/20 transition";
-                } else {
-                    btn.className = "px-4 py-2 rounded-xl text-sm font-bold bg-cardbg text-slate-300 border border-slate-800 hover:border-slate-600 transition";
-                }
-            });
-
-            document.getElementById('stock-ticker').innerText = s.ticker;
-            document.getElementById('stock-name').innerText = s.name;
-            document.getElementById('stock-price').innerText = `${s.price.toFixed(2)} ${s.currency}`;
-
-            const changeEl = document.getElementById('stock-change');
-            const sign = s.change_pct >= 0 ? '+' : '';
-            changeEl.innerText = `${sign}${s.change_pct.toFixed(2)}% (Heute)`;
-            changeEl.className = s.change_pct >= 0 ? 'text-sm font-semibold text-emerald-400' : 'text-sm font-semibold text-rose-400';
-
-            let rsiLabel = "Neutral";
-            if (s.indicators.rsi > 70) rsiLabel = "Überkauft";
-            if (s.indicators.rsi < 30) rsiLabel = "Überverkauft";
-            document.getElementById('ind-rsi').innerHTML = `${s.indicators.rsi} <span class="text-xs font-normal text-slate-400">(${rsiLabel})</span>`;
-            document.getElementById('ind-sma50').innerText = `${s.indicators.sma_50} ${s.currency}`;
-            document.getElementById('ind-sma200').innerText = `${s.indicators.sma_200} ${s.currency}`;
-
-            const trendColor = s.trend === 'Bullish' ? 'text-emerald-400' : (s.trend === 'Bearish' ? 'text-rose-400' : 'text-amber-400');
-            document.getElementById('ind-trend').innerHTML = `<span class="${trendColor}">${s.trend}</span> <span class="text-xs text-slate-400 font-normal">/ ${s.pe_ratio}</span>`;
-
-            document.getElementById('ai-commentary').innerText = s.ai_commentary;
-
-            renderChart(s.chart.labels, s.chart.prices, s.currency);
-        }
-
-        function renderChart(labels, prices, currency) {
-            const ctx = document.getElementById('priceChart').getContext('2d');
-            if (chartInstance) chartInstance.destroy();
-
-            chartInstance = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: `Kurs (${currency})`,
-                        data: prices,
-                        borderColor: '#10b981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                        borderWidth: 2.5,
-                        pointRadius: 0,
-                        pointHoverRadius: 5,
-                        fill: true,
-                        tension: 0.3
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        x: { grid: { display: false }, ticks: { color: '#64748b', maxTicksLimit: 6 } },
-                        y: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } }
-                    }
-                }
-            });
-        }
-
-        // Sparplan-Rechner Logik (Fehler behoben + Startkapital ergänzt)
-        function berechneSparplan() {
-            const start = parseFloat(document.getElementById('start-kapital').value) || 0;
-            const rate = parseFloat(document.getElementById('spar-rate').value) || 0;
-            const jahre = parseInt(document.getElementById('jahre').value) || 0;
-            const zinssatz = (parseFloat(document.getElementById('rendite').value) || 0) / 100;
-
-            const monate = jahre * 12;
-            const monatlicherZins = zinssatz / 12;
-
-            let endwert = 0;
-            if (monatlicherZins > 0) {
-                const endwertStart = start * Math.pow(1 + monatlicherZins, monate);
-                const endwertRaten = rate * ((Math.pow(1 + monatlicherZins, monate) - 1) / monatlicherZins);
-                endwert = endwertStart + endwertRaten;
-            } else {
-                endwert = start + (rate * monate);
-            }
-
-            const einzahlungen = start + (rate * monate);
-            const zinsen = Math.max(0, endwert - einzahlungen);
-
-            document.getElementById('res-einzahlung').innerText = Math.round(einzahlungen).toLocaleString('de-DE') + ' €';
-            document.getElementById('res-zinsen').innerText = '+' + Math.round(zinsen).toLocaleString('de-DE') + ' €';
-            document.getElementById('res-endwert').innerText = Math.round(endwert).toLocaleString('de-DE') + ' €';
-
-            const pctEinzahlung = endwert > 0 ? Math.round((einzahlungen / endwert) * 100) : 100;
-            const pctZinsen = 100 - pctEinzahlung;
-
-            document.getElementById('bar-einzahlung').style.width = `${pctEinzahlung}%`;
-            document.getElementById('bar-zinsen').style.width = `${pctZinsen}%`;
-            document.getElementById('bar-label-einzahlung').innerText = `Einzahlungen (${pctEinzahlung}%)`;
-            document.getElementById('bar-label-zinsen').innerText = `Zinseszins (${pctZinsen}%)`;
-        }
-
-        ['start-kapital', 'spar-rate', 'jahre', 'rendite'].forEach(id => {
-            document.getElementById(id).addEventListener('input', berechneSparplan);
+    async function loadStockData() {
+      $('data-alert').hidden = true;
+      $('asset-empty').hidden = true;
+      $('asset-content').hidden = true;
+      setText('last-updated', 'wird geladen…');
+      try {
+        const response = await fetch(CONFIG.dataUrl, {
+          cache: 'no-cache',
+          headers: { Accept: 'application/json' }
         });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        if (!data || !Array.isArray(data.stocks)) throw new Error('Ungültiges Datenformat');
+        const assets = data.stocks.map(normalizeAsset).filter(Boolean);
+        if (!assets.length) throw new Error('Keine gültigen Basiswerte im Datensatz');
+        state.assets = assets;
+        const stamp = data.last_updated || data.generated_at || 'Zeitstempel fehlt';
+        setText('last-updated', `${stamp} · ${assets.length} Werte`);
+        renderAssetButtons();
+        $('asset-content').hidden = false;
+        selectAsset(0);
+      } catch (error) {
+        console.error('Jahdo-Daten konnten nicht geladen werden:', error);
+        state.assets = [];
+        showDataError('Der Analyse-Datensatz ist nicht verfügbar oder ungültig. Es werden keine Ersatzkurse als aktuelle Marktdaten angezeigt.');
+      }
+    }
 
-        berechneSparplan();
-        loadStockData();
-    </script>
+    function renderAssetButtons() {
+      const container = $('ticker-buttons');
+      container.replaceChildren();
+      state.assets.forEach((asset, index) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'chip';
+        button.textContent = asset.ticker;
+        button.setAttribute('aria-pressed', 'false');
+        button.addEventListener('click', () => selectAsset(index));
+        container.appendChild(button);
+      });
+    }
+
+    function renderRangeButtons() {
+      const container = $('range-buttons');
+      container.replaceChildren();
+      RANGES.forEach((range) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'chip range-chip';
+        button.textContent = range.label;
+        button.setAttribute('aria-pressed', String(state.range === range.key));
+        button.addEventListener('click', () => {
+          state.range = range.key;
+          [...container.children].forEach((child, index) => {
+            child.setAttribute('aria-pressed', String(RANGES[index].key === state.range));
+          });
+          updateChart();
+        });
+        container.appendChild(button);
+      });
+    }
+
+    function selectAsset(index) {
+      const asset = state.assets[index];
+      if (!asset) return;
+      state.selectedIndex = index;
+      [...$('ticker-buttons').children].forEach((button, i) => {
+        button.setAttribute('aria-pressed', String(i === index));
+      });
+      setText('stock-ticker', asset.ticker);
+      setText('stock-name', asset.name);
+      setText('stock-meta', `${asset.currency || 'Währung nicht angegeben'} · Daten aus dem Analyse-Datensatz`);
+      setText('stock-price', formatPrice(asset.price, asset.currency));
+      const change = asset.changePct;
+      const changeElement = $('stock-change');
+      changeElement.className = 'change';
+      if (change === null) {
+        changeElement.textContent = 'Tagesänderung nicht verfügbar';
+      } else {
+        changeElement.textContent = `${change >= 0 ? '+' : ''}${change.toFixed(2)} % laut Datensatz`;
+        changeElement.classList.add(change >= 0 ? 'positive' : 'negative');
+      }
+      const rsi = asset.indicators.rsi;
+      setText('ind-rsi', rsi === null ? 'Nicht verfügbar' : rsi.toFixed(1));
+      const rsiNote = $('rsi-note');
+      rsiNote.className = '';
+      if (rsi === null) rsiNote.textContent = 'Nicht genügend oder keine gültige Historie';
+      else if (rsi > 70) { rsiNote.textContent = 'Über 70 · beschreibender Hinweis'; rsiNote.className = 'negative'; }
+      else if (rsi < 30) { rsiNote.textContent = 'Unter 30 · beschreibender Hinweis'; rsiNote.className = 'positive'; }
+      else rsiNote.textContent = 'Zwischen 30 und 70';
+      setText('ind-sma50', asset.indicators.sma50 === null ? 'Nicht verfügbar' : formatPrice(asset.indicators.sma50, asset.currency));
+      setText('ind-sma200', asset.indicators.sma200 === null ? 'Nicht verfügbar' : formatPrice(asset.indicators.sma200, asset.currency));
+      const trend = asset.trend || 'Nicht verfügbar';
+      const trendElement = $('ind-trend');
+      trendElement.textContent = trend;
+      trendElement.className = asset.trend === 'Bullish' ? 'positive' : asset.trend === 'Bearish' ? 'negative' : asset.trend === 'Neutral' ? 'neutral' : '';
+      setText('badge-trend', asset.trend ? `Datensatz: ${asset.trend}` : 'Keine Trendangabe im Datensatz');
+      setText('ai-commentary', asset.commentary || 'Für diesen Basiswert liegt derzeit kein Kommentar vor.');
+      renderRangeButtons();
+      updateChart();
+    }
+
+    function clearChart(message) {
+      if (state.chart) { state.chart.destroy(); state.chart = null; }
+      const canvas = $('priceChart');
+      canvas.hidden = true;
+      $('chart-empty').textContent = message;
+      $('chart-empty').hidden = false;
+      setText('range-perf', '—');
+    }
+
+    function updateChart() {
+      const asset = state.assets[state.selectedIndex];
+      if (!asset) return clearChart('Keine Daten ausgewählt.');
+      const range = asset.charts[state.range];
+      if (!range || range.prices.length < 2) return clearChart('Für diesen Zeitraum liegen keine ausreichenden Chartdaten vor.');
+      const maxPoints = 400;
+      const stride = Math.max(1, Math.ceil(range.prices.length / maxPoints));
+      const labels = [], prices = [];
+      for (let i = 0; i < range.prices.length; i += stride) {
+        labels.push(range.labels[i] || '');
+        prices.push(range.prices[i]);
+      }
+      const lastIndex = range.prices.length - 1;
+      if ((range.prices.length - 1) % stride !== 0) {
+        labels.push(range.labels[lastIndex] || '');
+        prices.push(range.prices[lastIndex]);
+      }
+      const first = prices[0], last = prices[prices.length - 1];
+      const changePct = first > 0 ? ((last - first) / first) * 100 : null;
+      const performance = $('range-perf');
+      performance.className = 'performance';
+      if (changePct === null || !Number.isFinite(changePct)) performance.textContent = '—';
+      else {
+        performance.textContent = `${changePct >= 0 ? '+' : ''}${changePct.toFixed(2)} % im Zeitraum`;
+        performance.classList.add(changePct >= 0 ? 'positive' : 'negative');
+      }
+      if (typeof Chart === 'undefined') return clearChart('Das Chart-Modul konnte nicht geladen werden.');
+      const canvas = $('priceChart');
+      canvas.hidden = false;
+      $('chart-empty').hidden = true;
+      if (state.chart) state.chart.destroy();
+      try {
+        state.chart = new Chart(canvas.getContext('2d'), {
+          type: 'line',
+          data: { labels, datasets: [{
+            label: `Kurs (${asset.currency || 'Währung unbekannt'})`, data: prices,
+            borderColor: changePct !== null && changePct < 0 ? '#e47772' : '#d7b56d',
+            backgroundColor: 'rgba(215, 181, 109, .12)', borderWidth: 2,
+            pointRadius: 0, pointHoverRadius: 4, fill: true, tension: .18
+          }] },
+          options: {
+            responsive: true, maintainAspectRatio: false, animation: false,
+            interaction: { intersect: false, mode: 'index' },
+            plugins: { legend: { display: false }, tooltip: { callbacks: {
+              label: (context) => ` ${formatPrice(context.parsed.y, asset.currency)}`
+            } } },
+            scales: {
+              x: { grid: { display: false }, ticks: { color: '#718075', maxTicksLimit: 6 } },
+              y: { grid: { color: 'rgba(23, 37, 29, .08)' }, ticks: { color: '#718075' } }
+            }
+          }
+        });
+      } catch (error) {
+        console.error('Chart konnte nicht dargestellt werden:', error);
+        clearChart('Der Kursverlauf konnte nicht dargestellt werden.');
+      }
+    }
+
+    function updateSimulator() {
+      const start = Number($('start-kapital').value);
+      const payment = Number($('spar-rate').value);
+      const years = Number($('jahre').value);
+      const annualReturn = Number($('rendite').value) / 100;
+      $('val-start').textContent = formatEuro(start);
+      $('val-rate').textContent = formatEuro(payment);
+      $('val-jahre').textContent = `${years} ${years === 1 ? 'Jahr' : 'Jahre'}`;
+      $('val-rendite').textContent = `${annualReturn >= 0 ? '+' : ''}${(annualReturn * 100).toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} %`;
+      const months = years * 12;
+      const monthlyRate = Math.pow(1 + annualReturn, 1 / 12) - 1;
+      const growth = Math.pow(1 + monthlyRate, months);
+      const paymentValue = Math.abs(monthlyRate) < 1e-10
+        ? payment * months
+        : payment * ((growth - 1) / monthlyRate);
+      const endValue = start * growth + paymentValue;
+      const contributions = start + payment * months;
+      const difference = endValue - contributions;
+      $('res-einzahlung').textContent = formatEuro(contributions);
+      const diffElement = $('res-differenz');
+      diffElement.textContent = `${difference > 0 ? '+' : ''}${formatEuro(difference)}`;
+      diffElement.className = difference > 0.5 ? 'positive' : difference < -0.5 ? 'negative' : '';
+      $('res-endwert').textContent = formatEuro(endValue);
+    }
+
+    function configureAffiliate() {
+      const link = $('affiliate-link');
+      const status = $('partner-status');
+      const candidate = CONFIG.affiliateUrl.trim();
+      if (!candidate) {
+        link.setAttribute('aria-disabled', 'true');
+        link.addEventListener('click', (event) => event.preventDefault());
+        return;
+      }
+      try {
+        const url = new URL(candidate);
+        if (url.protocol !== 'https:') throw new Error('HTTPS erforderlich');
+        link.href = url.href;
+        link.target = '_blank';
+        link.rel = 'sponsored nofollow noopener';
+        link.textContent = 'Partnerangebot ansehen';
+        link.removeAttribute('aria-disabled');
+        status.textContent = 'Werbung / Affiliate-Link';
+      } catch (error) {
+        link.setAttribute('aria-disabled', 'true');
+        link.addEventListener('click', (event) => event.preventDefault());
+        status.textContent = 'Partnerlink ist ungültig. Nur geprüfte HTTPS-URLs verwenden.';
+      }
+    }
+
+    $('retry-data').addEventListener('click', loadStockData);
+    ['start-kapital', 'spar-rate', 'jahre', 'rendite'].forEach((id) => {
+      $(id).addEventListener('input', updateSimulator);
+    });
+    $('year').textContent = new Date().getFullYear();
+    configureAffiliate();
+    updateSimulator();
+    loadStockData();
+  </script>
 </body>
 </html>

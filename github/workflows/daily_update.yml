@@ -2,8 +2,8 @@ name: Tägliches Aktien-Update
 
 on:
   schedule:
-    - cron: '0 22 * * 1-5' # Läuft Mo-Fr jeden Tag um 22:00 Uhr UTC
-  workflow_dispatch: # Ermöglicht auch den manuellen Start per Knopfdruck
+    - cron: '30 21 * * 1-5' # Läuft Mo-Fr um 21:30 Uhr UTC (nach US-Börsenschluss)
+  workflow_dispatch: # Manuelles Starten per Klick im Reiter "Actions" möglich
 
 permissions:
   contents: write
@@ -15,23 +15,23 @@ jobs:
       - name: Repository auschecken
         uses: actions/checkout@v4
 
-      - name: Python einrichten
+      - name: Python 3.11 einrichten
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: 'pip'
 
       - name: Abhängigkeiten installieren
-        run: pip install yfinance pandas google-genai
+        run: pip install --upgrade pip && pip install yfinance pandas google-genai
 
-      - name: Skript ausführen
+      - name: Analyse-Skript ausführen
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python update_stock.py
 
-      - name: Änderungen automatisch committen und pushen
+      - name: Neue JSON-Daten committen und pushen
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add data/latest_analysis.json
-          git commit -m "Automatisches Tages-Update der Aktienanalyse" || exit 0
-          git push
+          git diff --staged --quiet || (git commit -m "Auto-Update: Aktien- & ETF-Analyse" && git pull --rebase && git push)
